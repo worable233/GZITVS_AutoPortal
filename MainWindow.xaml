@@ -24,17 +24,6 @@
             <TitleBar.IconSource>
                 <FontIconSource Glyph="&#xEC76;"/>
             </TitleBar.IconSource>
-            <TitleBar.LeftHeader>
-                <Button 
-                    x:Name="TogglePaneButton"
-                    Click="TogglePaneButton_Click"
-                    Style="{StaticResource SubtleButtonStyle}"
-                    Width="40"
-                    Height="32"
-                    Margin="4,0">
-                    <FontIcon Glyph="&#xE700;" FontSize="16"/>
-                </Button>
-            </TitleBar.LeftHeader>
         </TitleBar>
 
         <NavigationView 

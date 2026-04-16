@@ -7,7 +7,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Padding="48">
+    <Grid Padding="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -36,7 +36,8 @@
             Spacing="16"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            MaxWidth="400">
+            MinWidth="320"
+            MaxWidth="480">
 
             <StackPanel x:Name="InputPanel" Spacing="12">
                 <TextBox 
@@ -44,19 +45,22 @@
                     Header="学号"
                     PlaceholderText="请输入您的学号"
                     InputScope="Digits"
-                    IsSpellCheckEnabled="False"/>
+                    IsSpellCheckEnabled="False"
+                    MinWidth="240"/>
                 
                 <PasswordBox 
                     x:Name="PasswordBox"
                     Header="密码"
                     PlaceholderText="请输入您的密码"
-                    PasswordRevealMode="Peek"/>
+                    PasswordRevealMode="Peek"
+                    MinWidth="240"/>
 
                 <TextBlock 
                     x:Name="ErrorMessage"
                     Foreground="{ThemeResource SystemErrorTextColor}"
                     Visibility="Collapsed"
-                    TextWrapping="Wrap"/>
+                    TextWrapping="Wrap"
+                    MaxWidth="480"/>
             </StackPanel>
         </StackPanel>
 
@@ -74,7 +78,7 @@
                     Content="开始配置"
                     Style="{StaticResource AccentButtonStyle}"
                     HorizontalAlignment="Center"
-                    MinWidth="200"
+                    MinWidth="160"
                     Click="NextButton_Click"/>
                 
                 <ProgressRing 
@@ -83,7 +87,7 @@
                     Width="24"
                     Height="24"
                     HorizontalAlignment="Center"
-                    Margin="220,0,0,0"/>
+                    Margin="180,0,0,0"/>
             </Grid>
         </StackPanel>
     </Grid>

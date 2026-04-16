@@ -7,7 +7,6 @@ namespace AutoPortal
 {
     public sealed partial class MainWindow : Window
     {
-        private bool _isPaneOpen = true;
         private readonly LoginValidator _loginValidator = new();
 
         public MainWindow()
@@ -28,12 +27,6 @@ namespace AutoPortal
             {
                 NavigationService.Instance.NavigateTo(PageType.Home);
             }
-        }
-
-        private void TogglePaneButton_Click(object sender, RoutedEventArgs e)
-        {
-            _isPaneOpen = !_isPaneOpen;
-            NavigationView.IsPaneOpen = _isPaneOpen;
         }
 
         private void NavigationView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)

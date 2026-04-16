@@ -48,6 +48,14 @@ namespace AutoPortal.Services
         {
             if (_navigationView == null) return;
 
+            if (pageType == PageType.Welcome)
+            {
+                _navigationView.IsPaneVisible = false;
+                return;
+            }
+
+            _navigationView.IsPaneVisible = true;
+
             string? tag = pageType switch
             {
                 PageType.Home => "Home",
