@@ -80,7 +80,7 @@ namespace AutoPortal.Helpers
                         return new LoginConfig();
                     }
 
-                    return JsonSerializer.Deserialize<LoginConfig>(json);
+                    return JsonSerializer.Deserialize(json, AppJsonContext.Default.LoginConfig);
                 }
 
                 return new LoginConfig();
@@ -99,10 +99,7 @@ namespace AutoPortal.Helpers
 
             try
             {
-                string json = JsonSerializer.Serialize(config, new JsonSerializerOptions 
-                { 
-                    WriteIndented = true 
-                });
+                string json = JsonSerializer.Serialize(config, AppJsonContext.Default.LoginConfig);
 
                 int result = SaveConfig(json, ref errorMsgPtr);
 
