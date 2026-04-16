@@ -1,10 +1,11 @@
 #pragma once
 
-// 导出宏定义
+// Export macro: when building the DLL define LOGINVALIDATOR_EXPORTS (handled by project settings)
+// To avoid build errors if the macro is not set, fall back to no-attribute (safe for building this project).
 #ifdef LOGINVALIDATOR_EXPORTS
 #define LOGINVALIDATOR_API __declspec(dllexport)
 #else
-#define LOGINVALIDATOR_API __declspec(dllimport)
+#define LOGINVALIDATOR_API
 #endif
 
 // 使用 extern "C" 防止C++名称修饰，方便C#调用

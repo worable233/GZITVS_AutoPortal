@@ -5,6 +5,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:muxc="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d">
 
     <Window.SystemBackdrop>
@@ -17,64 +18,64 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TitleBar 
+        <muxc:TitleBar 
             x:Name="TitleBar"
             Grid.Row="0"
             Title="AutoPortal">
-            <TitleBar.IconSource>
-                <FontIconSource Glyph="&#xEC76;"/>
-            </TitleBar.IconSource>
-        </TitleBar>
+            <muxc:TitleBar.IconSource>
+                <muxc:FontIconSource Glyph="&#xEC76;"/>
+            </muxc:TitleBar.IconSource>
+        </muxc:TitleBar>
 
-        <NavigationView 
+        <muxc:NavigationView 
             x:Name="NavigationView"
             Grid.Row="1"
-            IsPaneToggleButtonVisible="False"
+            IsPaneToggleButtonVisible="True"
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="False"
-            PaneDisplayMode="Left"
+            PaneDisplayMode="Auto"
             IsPaneOpen="True"
             OpenPaneLength="200"
             CompactPaneLength="48"
             SelectionChanged="NavigationView_SelectionChanged">
 
-            <NavigationView.MenuItems>
-                <NavigationViewItem 
+            <muxc:NavigationView.MenuItems>
+                <muxc:NavigationViewItem 
                     Content="主页" 
                     Tag="Home">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE80F;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:FontIcon Glyph="&#xE80F;"/>
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
 
-                <NavigationViewItem 
+                <muxc:NavigationViewItem 
                     Content="登录" 
                     Tag="Login">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE77B;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:FontIcon Glyph="&#xE77B;"/>
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
 
-                <NavigationViewItem 
+                <muxc:NavigationViewItem 
                     Content="配置管理" 
                     Tag="Config">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE8B7;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-            </NavigationView.MenuItems>
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:FontIcon Glyph="&#xE8B7;"/>
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+            </muxc:NavigationView.MenuItems>
 
-            <NavigationView.FooterMenuItems>
-                <NavigationViewItem 
+            <muxc:NavigationView.FooterMenuItems>
+                <muxc:NavigationViewItem 
                     Content="设置" 
                     Tag="Settings">
-                    <NavigationViewItem.Icon>
-                        <FontIcon Glyph="&#xE713;"/>
-                    </NavigationViewItem.Icon>
-                </NavigationViewItem>
-            </NavigationView.FooterMenuItems>
+                    <muxc:NavigationViewItem.Icon>
+                        <muxc:FontIcon Glyph="&#xE713;"/>
+                    </muxc:NavigationViewItem.Icon>
+                </muxc:NavigationViewItem>
+            </muxc:NavigationView.FooterMenuItems>
 
-            <Frame x:Name="ContentFrame"/>
-        </NavigationView>
+            <muxc:Frame x:Name="ContentFrame"/>
+        </muxc:NavigationView>
     </Grid>
 </Window>

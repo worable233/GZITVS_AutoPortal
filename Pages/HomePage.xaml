@@ -4,6 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:winui="using:Microsoft.UI.Xaml.Controls"
+    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -25,6 +27,121 @@
 
         <ScrollViewer Grid.Row="1">
             <StackPanel Spacing="16">
+                <!-- 新增卡片区 -->
+                <Grid ColumnSpacing="16" RowSpacing="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- 卡片1：流量统计 -->
+                    <Border Grid.Row="0" Grid.Column="0" Padding="16" Margin="0" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="流量统计" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                            <lvc:CartesianChart Height="120" Series="{x:Bind TrafficSeries}"/>
+                            <Grid ColumnSpacing="12" RowSpacing="4" Margin="0,8,0,0">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="上传速度"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="UploadSpeedText" Text="0 KB/s"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="下载速度"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="DownloadSpeedText" Text="0 KB/s"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="活跃连接"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="ActiveConnectionsText" Text="0"/>
+                            </Grid>
+                            <Grid ColumnSpacing="12" RowSpacing="4">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="上传量"/>
+                                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="UploadTotalText" Text="0 MB"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="下载量"/>
+                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="DownloadTotalText" Text="0 MB"/>
+                                <TextBlock Grid.Row="2" Grid.Column="0" Text="内存占用"/>
+                                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="MemoryUsageText" Text="0 MB"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 卡片2：网站测速 -->
+                    <Border Grid.Row="0" Grid.Column="1" Padding="16" Margin="0" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="网站测速" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                            <ItemsControl x:Name="SpeedTestList">
+                                <ItemsControl.Items>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Button Content="Apple" Click="PingApple_Click"/>
+                                        <TextBlock x:Name="ApplePingText" Text="- ms"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Button Content="Github" Click="PingGithub_Click"/>
+                                        <TextBlock x:Name="GithubPingText" Text="- ms"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Button Content="Baidu" Click="PingBaidu_Click"/>
+                                        <TextBlock x:Name="BaiduPingText" Text="- ms"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Button Content="Google" Click="PingGoogle_Click"/>
+                                        <TextBlock x:Name="GooglePingText" Text="- ms"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Button Content="Bing" Click="PingBing_Click"/>
+                                        <TextBlock x:Name="BingPingText" Text="- ms"/>
+                                    </StackPanel>
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <Button Content="QQ" Click="PingQQ_Click"/>
+                                        <TextBlock x:Name="QQPingText" Text="- ms"/>
+                                    </StackPanel>
+                                </ItemsControl.Items>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 卡片3：IP信息 -->
+                    <Border Grid.Row="1" Grid.Column="0" Padding="16" Margin="0" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="IP信息" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                            <TextBlock x:Name="CountryText" Text="国家: -"/>
+                            <TextBlock x:Name="IPText" Text="IP地址: -"/>
+                            <TextBlock x:Name="ISPText" Text="服务商: -"/>
+                            <TextBlock x:Name="OrgText" Text="组织: -"/>
+                            <TextBlock x:Name="LocationText" Text="位置: -"/>
+                            <TextBlock x:Name="ASNText" Text="自治域: -"/>
+                            <TextBlock x:Name="TimezoneText" Text="时区: -"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- 卡片4：系统信息 -->
+                    <Border Grid.Row="1" Grid.Column="1" Padding="16" Margin="0" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="系统信息" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                            <TextBlock x:Name="OSInfoText" Text="操作系统: -"/>
+                            <TextBlock x:Name="StartupText" Text="开机自启动: -"/>
+                            <TextBlock x:Name="RunModeText" Text="运行模式: -"/>
+                            <TextBlock x:Name="AppVersionText" Text="程序版本: -"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+
+                <!-- 原有内容保留 -->
                 <Grid 
                     x:Name="StatusCard"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
@@ -33,12 +150,10 @@
                     CornerRadius="8"
                     Padding="24"
                     Visibility="Collapsed">
-                    
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-
                     <FontIcon 
                         x:Name="StatusIcon"
                         Grid.Column="0"
@@ -46,7 +161,6 @@
                         FontSize="48"
                         Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
                         Margin="0,0,24,0"/>
-
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock 
                             x:Name="StatusTitle"
@@ -65,14 +179,12 @@
                         Text="快捷操作"
                         Style="{StaticResource BaseTextBlockStyle}"
                         Margin="0,8,0,0"/>
-
                     <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-
                         <Button 
                             Grid.Column="0"
                             Style="{StaticResource AccentButtonStyle}"
@@ -83,7 +195,6 @@
                                 <TextBlock Text="立即登录"/>
                             </StackPanel>
                         </Button>
-
                         <Button 
                             Grid.Column="1"
                             HorizontalAlignment="Stretch"
@@ -93,7 +204,6 @@
                                 <TextBlock Text="配置账号"/>
                             </StackPanel>
                         </Button>
-
                         <Button 
                             Grid.Column="2"
                             HorizontalAlignment="Stretch"

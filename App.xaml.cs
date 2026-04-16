@@ -22,7 +22,7 @@ namespace AutoPortal
 {
     public partial class App : Application
     {
-        public Window? m_window;
+        public static Window? MainWindow { get; private set; }
 
         public App()
         {
@@ -32,14 +32,14 @@ namespace AutoPortal
 
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
-            m_window = new MainWindow();
+            MainWindow = new MainWindow();
             ApplySavedTheme();
-            m_window.Activate();
+            MainWindow.Activate();
         }
 
         private void ApplySavedTheme()
         {
-            if (m_window?.Content is FrameworkElement content)
+            if (MainWindow?.Content is FrameworkElement content)
             {
                 var settings = AppSettingsService.Instance.Settings;
                 content.RequestedTheme = settings.Theme switch

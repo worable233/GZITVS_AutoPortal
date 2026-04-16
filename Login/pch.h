@@ -18,5 +18,16 @@
 // JSON 库
 #include "nlohmann/json.hpp"
 
-// 项目头文件
-#include "portal_login.h"
+// Do not include project headers that themselves include pch.h;
+// include those project headers in the corresponding .cpp files instead.
+// Precompiled header
+
+// Windows headers
+
+// C++ standard headers
+
+// libcurl
+
+// JSON library
+
+// Project headers

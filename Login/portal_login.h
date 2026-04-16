@@ -48,4 +48,5 @@ private:
     static bool looks_like_success(const std::string& text);
     // 获取可能的登录接口地址列表
     std::vector<std::string> get_login_url_candidates() const;
-};#pragma once
+};
+

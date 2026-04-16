@@ -39,7 +39,7 @@ namespace AutoPortal.Pages
         {
             try
             {
-                var window = (App.Current as App)?.m_window;
+                var window = App.MainWindow;
                 if (window == null) return;
 
                 var content = window.Content as FrameworkElement;

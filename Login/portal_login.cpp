@@ -128,16 +128,16 @@ std::string PortalLogin::login(const std::string& username, const std::string& p
             if (http_code == 404) continue;
 
             if (http_code == 302 || http_code == 303)
-                return "success: 收到重定向响应";
+                return "success: redirect received";
 
             if (http_code >= 400)
                 return "error: HTTP " + std::to_string(http_code);
 
             if (looks_like_success(response))
-                return "success: 登录成功";
+                return "success: login success";
 
-            return "error: 无法识别登录响应";
+            return "error: unrecognized login response";
         }
     }
-    return "error: 所有候选登录接口均请求失败";
+    return "error: all candidate login endpoints failed";
 }
