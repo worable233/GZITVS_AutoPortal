@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
@@ -37,22 +37,16 @@
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Content Include="Login\x64\Release\Login.dll" Condition="'$(Platform)' == 'x64'">
-      <Link>Login.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="Login\x64\Release\libcurl.dll" Condition="'$(Platform)' == 'x64'">
-      <Link>libcurl.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-    <Content Include="Login\x64\Release\zlib1.dll" Condition="'$(Platform)' == 'x64'">
-      <Link>zlib1.dll</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
+  <ItemGroup Condition="'$(Platform)' == 'x64'">
+    <EmbeddedResource Include="Login\x64\Release\Login.dll" WithCulture="false">
+      <LogicalName>$(AssemblyName).NativeDlls.Login.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Login\x64\Release\libcurl.dll" WithCulture="false">
+      <LogicalName>$(AssemblyName).NativeDlls.libcurl.dll</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Login\x64\Release\zlib1.dll" WithCulture="false">
+      <LogicalName>$(AssemblyName).NativeDlls.zlib1.dll</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -82,10 +76,4 @@
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
   </PropertyGroup>
-
-  <Target Name="CopyNativeDlls" AfterTargets="Publish">
-    <Copy SourceFiles="Login\x64\Release\Login.dll" DestinationFolder="$(PublishDir)" Condition="'$(Platform)' == 'x64' and Exists('Login\x64\Release\Login.dll')" />
-    <Copy SourceFiles="Login\x64\Release\libcurl.dll" DestinationFolder="$(PublishDir)" Condition="'$(Platform)' == 'x64' and Exists('Login\x64\Release\libcurl.dll')" />
-    <Copy SourceFiles="Login\x64\Release\zlib1.dll" DestinationFolder="$(PublishDir)" Condition="'$(Platform)' == 'x64' and Exists('Login\x64\Release\zlib1.dll')" />
-  </Target>
 </Project>

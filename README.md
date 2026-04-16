@@ -126,6 +126,14 @@ dotnet run
 ```bash
 dotnet publish -c Release -r win-x64
 ```
+### 输出文件
+```
+bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\
+├── AutoPortal.exe    - 单文件可执行程序
+├── libcurl.dll      
+├── Login.dll        
+└── zlib1.dll        
+```
 
 ## 注意事项
 

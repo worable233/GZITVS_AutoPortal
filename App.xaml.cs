@@ -16,6 +16,7 @@ using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using AutoPortal.Services;
+using AutoPortal.Helpers;
 
 namespace AutoPortal
 {
@@ -25,6 +26,7 @@ namespace AutoPortal
 
         public App()
         {
+            NativeDllExtractor.Initialize();
             InitializeComponent();
         }
 
