@@ -82,9 +82,23 @@
       <ZipFileName>AutoPortal_v$(Version)_$(PlatformName).zip</ZipFileName>
       <ZipOutputDir>$(MSBuildProjectDirectory)\bin\Release\net8.0-windows10.0.19041.0\$(PlatformName)</ZipOutputDir>
       <ZipFilePath>$(ZipOutputDir)\$(ZipFileName)</ZipFilePath>
+      <TempZipDir>$(PublishDir)..\temp_zip</TempZipDir>
     </PropertyGroup>
 
-    <MakeDir Directories="$(ZipOutputDir)" />
-    <ZipDirectory SourceDirectory="$(PublishDir)" DestinationFile="$(ZipFilePath)" Overwrite="true" />
+    <MakeDir Directories="$(TempZipDir)" />
+    
+    <ItemGroup>
+      <FilesToZip Include="$(PublishDir)\AutoPortal.exe" />
+      <FilesToZip Include="$(PublishDir)\Login.dll" />
+      <FilesToZip Include="$(PublishDir)\libcurl.dll" />
+      <FilesToZip Include="$(PublishDir)\zlib1.dll" />
+      <FilesToZip Include="$(PublishDir)\Assets\*.png" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(FilesToZip)" DestinationFiles="$(TempZipDir)\%(Filename)%(Extension)" />
+    
+    <ZipDirectory SourceDirectory="$(TempZipDir)" DestinationFile="$(ZipFilePath)" Overwrite="true" />
+    
+    <RemoveDir Directories="$(TempZipDir)" />
   </Target>
 </Project>
