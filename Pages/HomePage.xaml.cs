@@ -30,9 +30,9 @@ namespace AutoPortal.Pages
         private ObservableCollection<double> _uploadSeries = new();
         private ObservableCollection<double> _downloadSeries = new();
         private const int MaxPoints = 60;
-        public ISeries[] TrafficSeries { get; set; }
-        public Axis[] XAxes { get; set; }
-        public Axis[] YAxes { get; set; }
+        public ISeries[] TrafficSeries { get; set; } = new ISeries[0];
+        public Axis[] XAxes { get; set; } = new Axis[0];
+        public Axis[] YAxes { get; set; } = new Axis[0];
 
         public HomePage()
         {
@@ -83,7 +83,7 @@ namespace AutoPortal.Pages
             _lastUploadBytes = upload;
             _lastDownloadBytes = download;
             _lastNetSampleTime = now;
-            App.MainWindow.DispatcherQueue.TryEnqueue(() =>
+            App.MainWindow?.DispatcherQueue.TryEnqueue(() =>
             {
                 if (_uploadSeries.Count >= MaxPoints) _uploadSeries.RemoveAt(0);
                 if (_downloadSeries.Count >= MaxPoints) _downloadSeries.RemoveAt(0);
@@ -201,7 +201,7 @@ namespace AutoPortal.Pages
         }
         #endregion
 
-        private async void LoginButton_Click(object sender, RoutedEventArgs e)
+        private void LoginButton_Click(object sender, RoutedEventArgs e)
         {
             NavigationService.Instance.NavigateTo(PageType.Login);
         }

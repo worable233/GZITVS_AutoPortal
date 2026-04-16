@@ -11,6 +11,19 @@ namespace AutoPortal.Helpers
         private static bool _initialized = false;
         private static readonly object _lock = new();
 
+        public static bool IsDllAvailable(string dllName)
+        {
+            try
+            {
+                Initialize();
+                return !string.IsNullOrEmpty(_extractPath) && File.Exists(Path.Combine(_extractPath, dllName));
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         public static void Initialize()
         {
             if (_initialized) return;
@@ -22,19 +35,15 @@ namespace AutoPortal.Helpers
                 try
                 {
                     var assembly = Assembly.GetExecutingAssembly();
-                    var assemblyName = assembly.GetName().Name ?? "AutoPortal";
+                    var exePath = Path.GetDirectoryName(assembly.Location);
 
-                    _extractPath = Path.Combine(
-                        Path.GetTempPath(),
-                        "AutoPortal",
-                        "NativeDlls",
-                        $"{assemblyName}_{assembly.GetName().Version}"
-                    );
-                    Directory.CreateDirectory(_extractPath);
+                    if (string.IsNullOrEmpty(exePath))
+                    {
+                        _initialized = true;
+                        return;
+                    }
 
-                    ExtractDll(assembly, $"{assemblyName}.NativeDlls.Login.dll", "Login.dll");
-                    ExtractDll(assembly, $"{assemblyName}.NativeDlls.libcurl.dll", "libcurl.dll");
-                    ExtractDll(assembly, $"{assemblyName}.NativeDlls.zlib1.dll", "zlib1.dll");
+                    _extractPath = exePath;
 
                     SetDllDirectory(_extractPath);
 
@@ -42,55 +51,8 @@ namespace AutoPortal.Helpers
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"Failed to extract native DLLs: {ex.Message}");
-                }
-            }
-        }
-
-        private static void ExtractDll(Assembly assembly, string resourceName, string fileName)
-        {
-            var targetPath = Path.Combine(_extractPath!, fileName);
-
-            if (File.Exists(targetPath))
-            {
-                var existingBytes = File.ReadAllBytes(targetPath);
-                using var stream = assembly.GetManifestResourceStream(resourceName);
-
-                if (stream != null)
-                {
-                    using var memoryStream = new MemoryStream();
-                    stream.CopyTo(memoryStream);
-                    var newBytes = memoryStream.ToArray();
-
-                    if (existingBytes.Length == newBytes.Length)
-                    {
-                        bool same = true;
-                        for (int i = 0; i < existingBytes.Length; i++)
-                        {
-                            if (existingBytes[i] != newBytes[i])
-                            {
-                                same = false;
-                                break;
-                            }
-                        }
-                        if (same) return;
-                    }
-                }
-            }
-
-            using var resourceStream = assembly.GetManifestResourceStream(resourceName);
-            if (resourceStream != null)
-            {
-                using var fileStream = File.Create(targetPath);
-                resourceStream.CopyTo(fileStream);
-            }
-            else
-            {
-                var exePath = Path.GetDirectoryName(assembly.Location);
-                var sourcePath = Path.Combine(exePath!, fileName);
-                if (File.Exists(sourcePath))
-                {
-                    File.Copy(sourcePath, targetPath, true);
+                    System.Diagnostics.Debug.WriteLine($"Failed to set DLL directory: {ex.Message}");
+                    _initialized = true;
                 }
             }
         }

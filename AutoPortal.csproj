@@ -14,13 +14,7 @@
     <WindowsPackageType>None</WindowsPackageType>
     <SelfContained>true</SelfContained>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
-    <ExcludeFromSingleFile>Login.dll;libcurl.dll;zlib1.dll</ExcludeFromSingleFile>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Page Remove="Page\StartPage.xaml" />
-  </ItemGroup>
 
   <ItemGroup>
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -40,12 +34,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1721" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260317003" />
-    <PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-beta.730" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="Page\StartPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
+    <PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0-beta.800" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -57,20 +46,19 @@
 
   <Target Name="CopyNativeDlls" BeforeTargets="Publish">
     <Copy SourceFiles="Login\x64\Release\Login.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x64' and Exists('Login\x64\Release\Login.dll')" />
+    <Copy SourceFiles="Login\x86\Release\Login.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x86' and Exists('Login\x86\Release\Login.dll')" />
+    <Copy SourceFiles="Login\arm64\Release\Login.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-arm64' and Exists('Login\arm64\Release\Login.dll')" />
     <Copy SourceFiles="Login\x64\Release\libcurl.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x64' and Exists('Login\x64\Release\libcurl.dll')" />
     <Copy SourceFiles="Login\x64\Release\zlib1.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x64' and Exists('Login\x64\Release\zlib1.dll')" />
-    <Copy SourceFiles="Login\x86\Release\Login.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x86' and Exists('Login\x86\Release\Login.dll')" />
     <Copy SourceFiles="Login\x86\Release\libcurl.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x86' and Exists('Login\x86\Release\libcurl.dll')" />
     <Copy SourceFiles="Login\x86\Release\zlib1.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x86' and Exists('Login\x86\Release\zlib1.dll')" />
-    <Copy SourceFiles="Login\arm64\Release\Login.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-arm64' and Exists('Login\arm64\Release\Login.dll')" />
     <Copy SourceFiles="Login\arm64\Release\libcurl.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-arm64' and Exists('Login\arm64\Release\libcurl.dll')" />
     <Copy SourceFiles="Login\arm64\Release\zlib1.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-arm64' and Exists('Login\arm64\Release\zlib1.dll')" />
   </Target>
 
   <Target Name="CleanUnnecessaryFiles" AfterTargets="CopyNativeDlls">
-    <Delete Files="$(PublishDir)\Login\x64\Release\Login.pdb" Condition="Exists('$(PublishDir)\Login\x64\Release\Login.pdb')" />
-    <Delete Files="$(PublishDir)\Login\Login\x64\Release\vc145.pdb" Condition="Exists('$(PublishDir)\Login\Login\x64\Release\vc145.pdb')" />
-    <RemoveDir Directories="$(PublishDir)\Login" Condition="Exists('$(PublishDir)\Login')" />
+    <Delete Files="$(PublishDir)\Login.pdb" Condition="Exists('$(PublishDir)\Login.pdb')" />
+    <Delete Files="$(PublishDir)\vc145.pdb" Condition="Exists('$(PublishDir)\vc145.pdb')" />
   </Target>
 
   <Target Name="CreateZipPackage" AfterTargets="Publish">
@@ -88,14 +76,10 @@
     <MakeDir Directories="$(TempZipDir)" />
     
     <ItemGroup>
-      <FilesToZip Include="$(PublishDir)\AutoPortal.exe" />
-      <FilesToZip Include="$(PublishDir)\Login.dll" />
-      <FilesToZip Include="$(PublishDir)\libcurl.dll" />
-      <FilesToZip Include="$(PublishDir)\zlib1.dll" />
-      <FilesToZip Include="$(PublishDir)\Assets\*.png" />
+      <FilesToZip Include="$(PublishDir)\**\*" Exclude="$(PublishDir)\Assets\**\*;$(PublishDir)\Login.dll;$(PublishDir)\libcurl.dll;$(PublishDir)\zlib1.dll" />
     </ItemGroup>
 
-    <Copy SourceFiles="@(FilesToZip)" DestinationFiles="$(TempZipDir)\%(Filename)%(Extension)" />
+    <Copy SourceFiles="@(FilesToZip)" DestinationFiles="$(TempZipDir)\%(RecursiveDir)%(Filename)%(Extension)" />
     
     <ZipDirectory SourceDirectory="$(TempZipDir)" DestinationFile="$(ZipFilePath)" Overwrite="true" />
     

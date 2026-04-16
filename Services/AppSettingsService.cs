@@ -2,12 +2,10 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using AutoPortal.Helpers;
 
 namespace AutoPortal.Services
 {
-    /// <summary>
-    /// 应用程序设置管理服务
-    /// </summary>
     public class AppSettingsService
     {
         private static AppSettingsService? _instance;
@@ -37,7 +35,7 @@ namespace AutoPortal.Services
             try
             {
                 var options = new JsonSerializerOptions { WriteIndented = true };
-                var json = JsonSerializer.Serialize(_settings, options);
+                var json = JsonSerializer.Serialize(_settings, AppJsonContext.Default.AppSettings);
                 File.WriteAllText(_settingsFilePath, json);
             }
             catch (Exception ex)
@@ -53,7 +51,7 @@ namespace AutoPortal.Services
                 if (File.Exists(_settingsFilePath))
                 {
                     var json = File.ReadAllText(_settingsFilePath);
-                    return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+                    return JsonSerializer.Deserialize(json, AppJsonContext.Default.AppSettings) ?? new AppSettings();
                 }
             }
             catch (Exception ex)
@@ -65,13 +63,10 @@ namespace AutoPortal.Services
         }
     }
 
-    /// <summary>
-    /// 应用程序设置类
-    /// </summary>
     public class AppSettings
     {
         [JsonPropertyName("theme")]
-        public int Theme { get; set; } = 0; // 0: System, 1: Light, 2: Dark
+        public int Theme { get; set; } = 0;
 
         [JsonPropertyName("enableAutoLogin")]
         public bool EnableAutoLogin { get; set; } = true;
@@ -83,7 +78,7 @@ namespace AutoPortal.Services
         public bool EnableNotifications { get; set; } = true;
 
         [JsonPropertyName("checkNetworkTimeout")]
-        public int CheckNetworkTimeout { get; set; } = 3; // seconds
+        public int CheckNetworkTimeout { get; set; } = 3;
 
         [JsonPropertyName("startMinimized")]
         public bool StartMinimized { get; set; } = false;

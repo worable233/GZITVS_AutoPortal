@@ -234,4 +234,8 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Copy SourceFiles="$(ProjectDir)..\bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\libcurl.dll" DestinationFolder="$(OutDir)" Condition="Exists('$(ProjectDir)..\bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\libcurl.dll')" />
+    <Copy SourceFiles="$(ProjectDir)..\bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\zlib1.dll" DestinationFolder="$(OutDir)" Condition="Exists('$(ProjectDir)..\bin\Release\net8.0-windows10.0.19041.0\win-x64\publish\zlib1.dll')" />
+  </Target>
 </Project>

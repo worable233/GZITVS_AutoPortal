@@ -18,7 +18,9 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
-
+temp_verify_old/
+temp_verify2/
+temp_verify3/
 # Visual Studio cache/options
 *.sln.ide/
 *.vsidx
