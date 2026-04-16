@@ -82,7 +82,7 @@
                         Style="{StaticResource BaseTextBlockStyle}"/>
 
                     <TextBlock 
-                        Text="AutoPortal v1.0.0"
+                        Text="AutoPortal v1.0.1"
                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
 
                     <TextBlock 
