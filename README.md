@@ -1,4 +1,4 @@
-# AutoPortal - WinUI 3 应用程序使用说明
+# AutoPortal - 使用说明
 
 ## 项目概述
 AutoPortal 是一个基于 WinUI 3 的 C++ 实现的校园网 Portal 自动登录工具。

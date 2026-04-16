@@ -14,13 +14,11 @@
     <Nullable>enable</Nullable>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <WindowsPackageType>None</WindowsPackageType>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>true</SelfContained>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <ExcludeFromSingleFile>Login.dll;libcurl.dll;zlib1.dll</ExcludeFromSingleFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -35,18 +33,6 @@
     <Content Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Assets\Wide310x150Logo.scale-200.png" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(Platform)' == 'x64'">
-    <EmbeddedResource Include="Login\x64\Release\Login.dll" WithCulture="false">
-      <LogicalName>$(AssemblyName).NativeDlls.Login.dll</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Login\x64\Release\libcurl.dll" WithCulture="false">
-      <LogicalName>$(AssemblyName).NativeDlls.libcurl.dll</LogicalName>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Login\x64\Release\zlib1.dll" WithCulture="false">
-      <LogicalName>$(AssemblyName).NativeDlls.zlib1.dll</LogicalName>
-    </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
@@ -76,4 +62,37 @@
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
   </PropertyGroup>
+
+  <Target Name="CopyNativeDlls" BeforeTargets="Publish">
+    <Copy SourceFiles="Login\x64\Release\Login.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x64' and Exists('Login\x64\Release\Login.dll')" />
+    <Copy SourceFiles="Login\x64\Release\libcurl.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x64' and Exists('Login\x64\Release\libcurl.dll')" />
+    <Copy SourceFiles="Login\x64\Release\zlib1.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x64' and Exists('Login\x64\Release\zlib1.dll')" />
+    <Copy SourceFiles="Login\x86\Release\Login.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x86' and Exists('Login\x86\Release\Login.dll')" />
+    <Copy SourceFiles="Login\x86\Release\libcurl.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x86' and Exists('Login\x86\Release\libcurl.dll')" />
+    <Copy SourceFiles="Login\x86\Release\zlib1.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x86' and Exists('Login\x86\Release\zlib1.dll')" />
+    <Copy SourceFiles="Login\arm64\Release\Login.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-arm64' and Exists('Login\arm64\Release\Login.dll')" />
+    <Copy SourceFiles="Login\arm64\Release\libcurl.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-arm64' and Exists('Login\arm64\Release\libcurl.dll')" />
+    <Copy SourceFiles="Login\arm64\Release\zlib1.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-arm64' and Exists('Login\arm64\Release\zlib1.dll')" />
+  </Target>
+
+  <Target Name="CleanUnnecessaryFiles" AfterTargets="CopyNativeDlls">
+    <Delete Files="$(PublishDir)\Login\x64\Release\Login.pdb" Condition="Exists('$(PublishDir)\Login\x64\Release\Login.pdb')" />
+    <Delete Files="$(PublishDir)\Login\Login\x64\Release\vc145.pdb" Condition="Exists('$(PublishDir)\Login\Login\x64\Release\vc145.pdb')" />
+    <RemoveDir Directories="$(PublishDir)\Login" Condition="Exists('$(PublishDir)\Login')" />
+  </Target>
+
+  <Target Name="CreateZipPackage" AfterTargets="Publish">
+    <PropertyGroup>
+      <Version>1.0.0</Version>
+      <PlatformName Condition="'$(RuntimeIdentifier)' == 'win-x64'">win-x64</PlatformName>
+      <PlatformName Condition="'$(RuntimeIdentifier)' == 'win-x86'">win-x86</PlatformName>
+      <PlatformName Condition="'$(RuntimeIdentifier)' == 'win-arm64'">win-arm64</PlatformName>
+      <ZipFileName>AutoPortal_v$(Version)_$(PlatformName).zip</ZipFileName>
+      <ZipOutputDir>$(MSBuildProjectDirectory)\bin\Release\net8.0-windows10.0.19041.0\$(PlatformName)</ZipOutputDir>
+      <ZipFilePath>$(ZipOutputDir)\$(ZipFileName)</ZipFilePath>
+    </PropertyGroup>
+
+    <MakeDir Directories="$(ZipOutputDir)" />
+    <ZipDirectory SourceDirectory="$(PublishDir)" DestinationFile="$(ZipFilePath)" Overwrite="true" />
+  </Target>
 </Project>

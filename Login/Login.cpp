@@ -5,8 +5,6 @@
 namespace fs = std::filesystem;
 using json = nlohmann::json;
 
-// ========== 辅助函数 ==========
-
 // 设置错误信息
 static void SetError(wchar_t** errorMsg, const std::wstring& msg) {
     if (errorMsg) {
