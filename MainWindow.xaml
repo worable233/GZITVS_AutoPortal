@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Window
+    x:Class="AutoPortal.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Window.SystemBackdrop>
+        <MicaBackdrop Kind="Base"/>
+    </Window.SystemBackdrop>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TitleBar 
+            x:Name="TitleBar"
+            Grid.Row="0"
+            Title="AutoPortal">
+            <TitleBar.IconSource>
+                <FontIconSource Glyph="&#xEC76;"/>
+            </TitleBar.IconSource>
+            <TitleBar.LeftHeader>
+                <Button 
+                    x:Name="TogglePaneButton"
+                    Click="TogglePaneButton_Click"
+                    Style="{StaticResource SubtleButtonStyle}"
+                    Width="40"
+                    Height="32"
+                    Margin="4,0">
+                    <FontIcon Glyph="&#xE700;" FontSize="16"/>
+                </Button>
+            </TitleBar.LeftHeader>
+        </TitleBar>
+
+        <NavigationView 
+            x:Name="NavigationView"
+            Grid.Row="1"
+            IsPaneToggleButtonVisible="False"
+            IsBackButtonVisible="Collapsed"
+            IsSettingsVisible="False"
+            PaneDisplayMode="Left"
+            IsPaneOpen="True"
+            OpenPaneLength="200"
+            CompactPaneLength="48"
+            SelectionChanged="NavigationView_SelectionChanged">
+
+            <NavigationView.MenuItems>
+                <NavigationViewItem 
+                    Content="主页" 
+                    Tag="Home">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE80F;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <NavigationViewItem 
+                    Content="登录" 
+                    Tag="Login">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE77B;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+
+                <NavigationViewItem 
+                    Content="配置管理" 
+                    Tag="Config">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8B7;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem 
+                    Content="设置" 
+                    Tag="Settings">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE713;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
+
+            <Frame x:Name="ContentFrame"/>
+        </NavigationView>
+    </Grid>
+</Window>

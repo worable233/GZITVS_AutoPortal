@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "AutoPortal (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "AutoPortal (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
