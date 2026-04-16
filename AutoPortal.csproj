@@ -75,7 +75,7 @@
 
   <Target Name="CreateZipPackage" AfterTargets="Publish">
     <PropertyGroup>
-      <Version>1.0.1</Version>
+      <Version>1.0.2</Version>
       <PlatformName Condition="'$(RuntimeIdentifier)' == 'win-x64'">win-x64</PlatformName>
       <PlatformName Condition="'$(RuntimeIdentifier)' == 'win-x86'">win-x86</PlatformName>
       <PlatformName Condition="'$(RuntimeIdentifier)' == 'win-arm64'">win-arm64</PlatformName>
