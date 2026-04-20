@@ -48,7 +48,9 @@
                             <TextBlock Text="流量统计" Style="{StaticResource SubtitleTextBlockStyle}"/>
                             <lvc:CartesianChart 
                                 Height="140" 
-                                Series="{x:Bind TrafficSeries}"
+                                Series="{Binding TrafficSeries}"
+                                XAxes="{Binding XAxes}"
+                                YAxes="{Binding YAxes}"
                                 FontFamily="Microsoft YaHei"/>
 
                             <Grid ColumnSpacing="12" RowSpacing="4">

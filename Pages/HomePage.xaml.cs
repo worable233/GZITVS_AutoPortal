@@ -30,20 +30,32 @@ namespace AutoPortal.Pages
         private DateTime _lastNetSampleTime;
         private bool _isRefreshing;
 
-        private readonly ObservableCollection<double> _uploadSeries = new();
-        private readonly ObservableCollection<double> _downloadSeries = new();
+        // 优化：使用固定大小的数组代替 ObservableCollection 减少内存分配
+        private readonly double[] _uploadBuffer = new double[MaxPoints];
+        private readonly double[] _downloadBuffer = new double[MaxPoints];
+        private int _bufferIndex = 0;
+        private int _pointCount = 0;
+        
         private const int MaxPoints = 20;
         private int _timerCounter = 0;
 
-        public ISeries[] TrafficSeries { get; set; } = Array.Empty<ISeries>();
-        public Axis[] XAxes { get; set; } = Array.Empty<Axis>();
-        public Axis[] YAxes { get; set; } = Array.Empty<Axis>();
+        // 图表字段
+        private ISeries[]? _trafficSeries;
+        private Axis[]? _xAxes;
+        private Axis[]? _yAxes;
+
+        // 图表属性（在构造函数中已初始化）
+        public ISeries[] TrafficSeries => _trafficSeries ?? Array.Empty<ISeries>();
+        public Axis[] XAxes => _xAxes ?? Array.Empty<Axis>();
+        public Axis[] YAxes => _yAxes ?? Array.Empty<Axis>();
 
         public HomePage()
         {
             InitializeComponent();
             Loaded += Page_Loaded;
             Unloaded += Page_Unloaded;
+            
+            // 在构造函数中初始化图表，确保 XAML 绑定时有数据
             InitTrafficChart();
         }
 
@@ -147,25 +159,29 @@ namespace AutoPortal.Pages
                 }
             }
 
-            TrafficSeries = new ISeries[]
+            // 优化：初始化图表系列，使用 ObservableCollection
+            var uploadValues = new ObservableCollection<double>();
+            var downloadValues = new ObservableCollection<double>();
+            
+            _trafficSeries = new ISeries[]
             {
                 new LineSeries<double> 
                 { 
-                    Values = _uploadSeries, 
+                    Values = uploadValues,
                     Name = "上传 (KB/s)", 
                     Fill = null,
                     GeometrySize = 0
                 },
                 new LineSeries<double> 
                 { 
-                    Values = _downloadSeries, 
+                    Values = downloadValues,
                     Name = "下载 (KB/s)", 
                     Fill = null,
                     GeometrySize = 0
                 }
             };
 
-            XAxes = new Axis[] { new Axis { IsVisible = false } };
+            _xAxes = new Axis[] { new Axis { IsVisible = false } };
             
             // 配置 Y 轴标签字体
             var yAxis = new Axis { MinLimit = 0 };
@@ -175,7 +191,7 @@ namespace AutoPortal.Pages
                 var labelPaint = new SolidColorPaint { Color = new SKColor(0, 0, 0, 255) };
                 yAxis.LabelsPaint = labelPaint;
             }
-            YAxes = new Axis[] { yAxis };
+            _yAxes = new Axis[] { yAxis };
             
             DataContext = this;
         }
@@ -217,6 +233,10 @@ namespace AutoPortal.Pages
                 _lastDownloadBytes = download;
                 _lastNetSampleTime = now;
 
+                // 确保速度不为负数
+                if (upSpeed < 0) upSpeed = 0;
+                if (downSpeed < 0) downSpeed = 0;
+
                 // 每 3 秒更新一次图表数据，使显示更清晰
                 _timerCounter++;
                 if (_timerCounter < 3)
@@ -227,10 +247,38 @@ namespace AutoPortal.Pages
 
                 App.MainWindow?.DispatcherQueue.TryEnqueue(() =>
                 {
-                    if (_uploadSeries.Count >= MaxPoints) _uploadSeries.RemoveAt(0);
-                    if (_downloadSeries.Count >= MaxPoints) _downloadSeries.RemoveAt(0);
-                    _uploadSeries.Add(Math.Round(upSpeed / 1024, 2));
-                    _downloadSeries.Add(Math.Round(downSpeed / 1024, 2));
+                    // 更新图表数据
+                    if (_trafficSeries != null && _trafficSeries.Length >= 2)
+                    {
+                        var uploadSeries = (LineSeries<double>)_trafficSeries[0];
+                        var downloadSeries = (LineSeries<double>)_trafficSeries[1];
+                        
+                        var uploadValues = uploadSeries.Values as ObservableCollection<double>;
+                        var downloadValues = downloadSeries.Values as ObservableCollection<double>;
+                        
+                        if (uploadValues != null && downloadValues != null)
+                        {
+                            // 使用循环缓冲区
+                            var upValue = Math.Round(upSpeed / 1024, 2);
+                            var downValue = Math.Round(downSpeed / 1024, 2);
+                            
+                            _uploadBuffer[_bufferIndex] = upValue;
+                            _downloadBuffer[_bufferIndex] = downValue;
+                            _bufferIndex = (_bufferIndex + 1) % MaxPoints;
+                            if (_pointCount < MaxPoints) _pointCount++;
+                            
+                            // 清空并添加新数据
+                            uploadValues.Clear();
+                            downloadValues.Clear();
+                            
+                            for (int i = 0; i < _pointCount; i++)
+                            {
+                                var idx = (_bufferIndex + i) % MaxPoints;
+                                uploadValues.Add(_uploadBuffer[idx]);
+                                downloadValues.Add(_downloadBuffer[idx]);
+                            }
+                        }
+                    }
 
                     UploadSpeedText.Text = $"{upSpeed / 1024:F2} KB/s";
                     DownloadSpeedText.Text = $"{downSpeed / 1024:F2} KB/s";
@@ -240,25 +288,37 @@ namespace AutoPortal.Pages
                     MemoryUsageText.Text = $"{Process.GetCurrentProcess().WorkingSet64 / 1024.0 / 1024.0:F2} MB";
                 });
             }
-            catch
+            catch (Exception ex)
             {
+                // 静默失败，不影响其他功能
+                System.Diagnostics.Debug.WriteLine($"Network monitor error: {ex.Message}");
             }
         }
 
         private static long GetNetworkBytes(bool upload)
         {
-            long total = 0;
-            foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
+            try
             {
-                if (ni.OperationalStatus != OperationalStatus.Up || ni.NetworkInterfaceType == NetworkInterfaceType.Loopback)
+                long total = 0;
+                foreach (var ni in NetworkInterface.GetAllNetworkInterfaces())
                 {
-                    continue;
-                }
+                    // 只统计正在运行且非回环的网络接口
+                    if (ni.OperationalStatus != OperationalStatus.Up || 
+                        ni.NetworkInterfaceType == NetworkInterfaceType.Loopback)
+                    {
+                        continue;
+                    }
 
-                var stats = ni.GetIPv4Statistics();
-                total += upload ? stats.BytesSent : stats.BytesReceived;
+                    var stats = ni.GetIPv4Statistics();
+                    total += upload ? stats.BytesSent : stats.BytesReceived;
+                }
+                return total;
             }
-            return total;
+            catch
+            {
+                // 如果无法获取网络统计信息，返回 0
+                return 0;
+            }
         }
 
         private static int GetActiveTcpConnections()
@@ -287,16 +347,28 @@ namespace AutoPortal.Pages
 
         private static async Task PingAndShowAsync(string host, TextBlock textBlock)
         {
-            textBlock.Text = "测试中...";
             try
             {
+                textBlock.Text = "测试中...";
                 using var ping = new Ping();
-                var reply = await ping.SendPingAsync(host, 2500);
-                textBlock.Text = reply.Status == IPStatus.Success ? $"{Math.Max(1, reply.RoundtripTime)} ms" : "超时";
+                var reply = await ping.SendPingAsync(host, 3000);
+                
+                if (reply.Status == IPStatus.Success)
+                {
+                    textBlock.Text = $"{Math.Max(1, reply.RoundtripTime)} ms";
+                }
+                else
+                {
+                    textBlock.Text = "超时";
+                }
             }
-            catch
+            catch (PingException)
             {
                 textBlock.Text = "失败";
+            }
+            catch (Exception)
+            {
+                textBlock.Text = "错误";
             }
         }
 

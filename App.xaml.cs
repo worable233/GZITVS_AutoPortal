@@ -32,6 +32,9 @@ namespace AutoPortal
 
         public App()
         {
+            // 优化：启用服务器垃圾回收，减少内存占用
+            System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.Batch;
+            
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
             try
