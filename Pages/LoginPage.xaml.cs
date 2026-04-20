@@ -77,7 +77,7 @@ namespace AutoPortal.Pages
 
         private void SaveConfigButton_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.Instance.NavigateTo(PageType.Config);
+            NavigationService.Instance.NavigateTo(PageType.Settings);
         }
 
         private void SetLoadingState(bool isLoading)

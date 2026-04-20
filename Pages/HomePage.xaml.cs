@@ -245,6 +245,19 @@ namespace AutoPortal.Pages
                 }
                 _timerCounter = 0;
 
+                // 缓存进程对象，避免每次创建
+                var currentProcess = Process.GetCurrentProcess();
+                var memoryMB = currentProcess.WorkingSet64 / 1024.0 / 1024.0;
+                var connections = GetActiveTcpConnections();
+
+                // 预计算所有文本
+                var upSpeedText = $"{upSpeed / 1024:F2} KB/s";
+                var downSpeedText = $"{downSpeed / 1024:F2} KB/s";
+                var uploadTotalText = $"{upload / 1024.0 / 1024.0:F2} MB";
+                var downloadTotalText = $"{download / 1024.0 / 1024.0:F2} MB";
+                var connectionsText = connections.ToString();
+                var memoryText = $"{memoryMB:F2} MB";
+
                 App.MainWindow?.DispatcherQueue.TryEnqueue(() =>
                 {
                     // 更新图表数据
@@ -253,10 +266,7 @@ namespace AutoPortal.Pages
                         var uploadSeries = (LineSeries<double>)_trafficSeries[0];
                         var downloadSeries = (LineSeries<double>)_trafficSeries[1];
                         
-                        var uploadValues = uploadSeries.Values as ObservableCollection<double>;
-                        var downloadValues = downloadSeries.Values as ObservableCollection<double>;
-                        
-                        if (uploadValues != null && downloadValues != null)
+                        if (uploadSeries.Values != null && downloadSeries.Values != null)
                         {
                             // 使用循环缓冲区
                             var upValue = Math.Round(upSpeed / 1024, 2);
@@ -267,25 +277,18 @@ namespace AutoPortal.Pages
                             _bufferIndex = (_bufferIndex + 1) % MaxPoints;
                             if (_pointCount < MaxPoints) _pointCount++;
                             
-                            // 清空并添加新数据
-                            uploadValues.Clear();
-                            downloadValues.Clear();
-                            
-                            for (int i = 0; i < _pointCount; i++)
-                            {
-                                var idx = (_bufferIndex + i) % MaxPoints;
-                                uploadValues.Add(_uploadBuffer[idx]);
-                                downloadValues.Add(_downloadBuffer[idx]);
-                            }
+                            // 直接设置 Values 属性，避免频繁 Clear/Add
+                            uploadSeries.Values = GetUploadBufferArray();
+                            downloadSeries.Values = GetDownloadBufferArray();
                         }
                     }
 
-                    UploadSpeedText.Text = $"{upSpeed / 1024:F2} KB/s";
-                    DownloadSpeedText.Text = $"{downSpeed / 1024:F2} KB/s";
-                    UploadTotalText.Text = $"{upload / 1024.0 / 1024.0:F2} MB";
-                    DownloadTotalText.Text = $"{download / 1024.0 / 1024.0:F2} MB";
-                    ActiveConnectionsText.Text = GetActiveTcpConnections().ToString();
-                    MemoryUsageText.Text = $"{Process.GetCurrentProcess().WorkingSet64 / 1024.0 / 1024.0:F2} MB";
+                    UploadSpeedText.Text = upSpeedText;
+                    DownloadSpeedText.Text = downSpeedText;
+                    UploadTotalText.Text = uploadTotalText;
+                    DownloadTotalText.Text = downloadTotalText;
+                    ActiveConnectionsText.Text = connectionsText;
+                    MemoryUsageText.Text = memoryText;
                 });
             }
             catch (Exception ex)
@@ -293,6 +296,28 @@ namespace AutoPortal.Pages
                 // 静默失败，不影响其他功能
                 System.Diagnostics.Debug.WriteLine($"Network monitor error: {ex.Message}");
             }
+        }
+
+        private double[] GetUploadBufferArray()
+        {
+            var result = new double[_pointCount];
+            for (int i = 0; i < _pointCount; i++)
+            {
+                var idx = (_bufferIndex + i) % MaxPoints;
+                result[i] = _uploadBuffer[idx];
+            }
+            return result;
+        }
+
+        private double[] GetDownloadBufferArray()
+        {
+            var result = new double[_pointCount];
+            for (int i = 0; i < _pointCount; i++)
+            {
+                var idx = (_bufferIndex + i) % MaxPoints;
+                result[i] = _downloadBuffer[idx];
+            }
+            return result;
         }
 
         private static long GetNetworkBytes(bool upload)
@@ -448,7 +473,7 @@ namespace AutoPortal.Pages
 
         private void ConfigButton_Click(object sender, RoutedEventArgs e)
         {
-            NavigationService.Instance.NavigateTo(PageType.Config);
+            NavigationService.Instance.NavigateTo(PageType.Settings);
         }
 
         private async void RefreshButton_Click(object sender, RoutedEventArgs e)
@@ -562,15 +587,15 @@ namespace AutoPortal.Pages
 
             if (_config == null || string.IsNullOrWhiteSpace(_config.Username))
             {
-                ShowStatus("\uE7BA", "未配置账号", "已跳转到配置页，请先配置账号。");
-                NavigationService.Instance.NavigateTo(PageType.Config);
+                ShowStatus("\uE7BA", "未配置账号", "已跳转到设置页，请先配置账号。");
+                NavigationService.Instance.NavigateTo(PageType.Settings);
                 return;
             }
 
             if (string.IsNullOrWhiteSpace(_config.Password))
             {
-                ShowStatus("\uE783", "缺少密码", "已跳转到配置页，请先保存密码。");
-                NavigationService.Instance.NavigateTo(PageType.Config);
+                ShowStatus("\uE783", "缺少密码", "已跳转到设置页，请先保存密码。");
+                NavigationService.Instance.NavigateTo(PageType.Settings);
                 return;
             }
 

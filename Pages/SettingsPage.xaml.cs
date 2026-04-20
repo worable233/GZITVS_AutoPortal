@@ -1,4 +1,5 @@
 using AutoPortal.Helpers;
+using AutoPortal.Models;
 using AutoPortal.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -10,6 +11,7 @@ namespace AutoPortal.Pages
     public sealed partial class SettingsPage : Page
     {
         private readonly LoginValidator _loginValidator = new();
+        private LoginConfig? _config;
 
         public SettingsPage()
         {
@@ -20,7 +22,21 @@ namespace AutoPortal.Pages
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             LoadSettings();
+            LoadConfig();
             LoadVersionInfo();
+        }
+
+        private void LoadConfig()
+        {
+            _config = _loginValidator.Load(out _);
+            if (_config == null) return;
+
+            UsernameTextBox.Text = _config.Username;
+            PasswordBox.Password = _config.Password;
+            PortalUrlTextBox.Text = string.IsNullOrWhiteSpace(_config.PortalUrl)
+                ? "http://10.189.108.11/"
+                : _config.PortalUrl;
+            AutoLoginCheckBox.IsOn = _config.AutoLogin;
         }
 
         private void LoadSettings()
@@ -254,6 +270,68 @@ del ""{restartScript}""
                 };
                 await dialog.ShowAsync();
             }
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            var username = UsernameTextBox.Text.Trim();
+            var password = PasswordBox.Password;
+            var portalUrl = PortalUrlTextBox.Text.Trim();
+
+            if (string.IsNullOrEmpty(username))
+            {
+                ShowConfigError("请输入学号");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(portalUrl))
+            {
+                ShowConfigError("请输入 Portal 地址");
+                return;
+            }
+
+            HideConfigMessages();
+
+            _config = new LoginConfig
+            {
+                Username = username,
+                Password = password,
+                PortalUrl = portalUrl,
+                AutoLogin = AutoLoginCheckBox.IsOn
+            };
+
+            if (_loginValidator.Save(_config, out string error))
+            {
+                ShowConfigSuccess("配置已保存");
+            }
+            else
+            {
+                ShowConfigError($"保存失败：{error}");
+            }
+        }
+
+        private void HideConfigMessages()
+        {
+            ConfigSuccessMessage.IsOpen = false;
+            ConfigSuccessMessage.Visibility = Visibility.Collapsed;
+            ConfigErrorMessage.IsOpen = false;
+            ConfigErrorMessage.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowConfigSuccess(string message)
+        {
+            HideConfigMessages();
+            ConfigSuccessMessage.Message = message;
+            ConfigSuccessMessage.IsOpen = true;
+            ConfigSuccessMessage.Visibility = Visibility.Visible;
+        }
+
+        private void ShowConfigError(string message)
+        {
+            HideConfigMessages();
+            ConfigErrorMessage.Message = message;
+            ConfigErrorMessage.IsOpen = true;
+            ConfigErrorMessage.Visibility = Visibility.Visible;
         }
     }
 }

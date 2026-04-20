@@ -25,6 +25,7 @@ namespace AutoPortal
     public partial class App : Application
     {
         public static Window? MainWindow { get; private set; }
+        private static System.Timers.Timer? _gcTimer;
         private static readonly string StartupLogPath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "AutoPortal",
@@ -32,8 +33,8 @@ namespace AutoPortal
 
         public App()
         {
-            // 优化：启用服务器垃圾回收，减少内存占用
-            System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.Batch;
+            // 优化：启用低延迟垃圾回收，减少内存占用
+            System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.SustainedLowLatency;
             
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
@@ -41,6 +42,9 @@ namespace AutoPortal
             {
                 NativeDllExtractor.Initialize();
                 InitializeComponent();
+                
+                // 启动定期 GC 定时器（每 30 秒触发一次）
+                StartGcTimer();
             }
             catch (Exception ex)
             {
@@ -49,6 +53,18 @@ namespace AutoPortal
                 throw;
             }
         }
+        
+        private static void StartGcTimer()
+        {
+            _gcTimer = new System.Timers.Timer(30000); // 30 秒
+            _gcTimer.Elapsed += (s, e) =>
+            {
+                // 轻量级 GC，不阻塞主线程
+                GC.Collect(0, GCCollectionMode.Forced, blocking: false);
+                GC.Collect(1, GCCollectionMode.Forced, blocking: false);
+            };
+            _gcTimer.Start();
+        }
 
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
@@ -56,6 +72,10 @@ namespace AutoPortal
             {
                 MainWindow = new MainWindow();
                 ApplySavedTheme();
+                
+                // 设置应用图标
+                SetAppIcon();
+                
                 MainWindow.Activate();
             }
             catch (Exception ex)
@@ -132,5 +152,34 @@ namespace AutoPortal
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         private static extern int MessageBoxW(IntPtr hWnd, string lpText, string lpCaption, uint uType);
+        
+        private void SetAppIcon()
+        {
+            try
+            {
+                if (MainWindow == null) return;
+                
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(MainWindow);
+                var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+                var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+                
+                if (appWindow != null)
+                {
+                    var iconPath = System.IO.Path.Combine(
+                        AppDomain.CurrentDomain.BaseDirectory,
+                        "Assets",
+                        "Logo.png");
+                    
+                    if (System.IO.File.Exists(iconPath))
+                    {
+                        appWindow.SetIcon(iconPath);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to set app icon: {ex.Message}");
+            }
+        }
     }
 }

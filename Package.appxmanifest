@@ -11,7 +11,7 @@
   <Identity
     Name="87d9a1db-52e8-4421-90dd-88716f64d8a9"
     Publisher="CN=worable"
-    Version="1.0.2.0" />
+    Version="1.0.3.0" />
 
   <mp:PhoneIdentity PhoneProductId="87d9a1db-52e8-4421-90dd-88716f64d8a9" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
@@ -38,10 +38,10 @@
         DisplayName="AutoPortal"
         Description="AutoPortal"
         BackgroundColor="transparent"
-        Square150x150Logo="Assets\Square150x150Logo.png"
-        Square44x44Logo="Assets\Square44x44Logo.png">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" />
-        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+        Square150x150Logo="Assets\Square150x150Logo.scale-200.png"
+        Square44x44Logo="Assets\Square44x44Logo.scale-200.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.scale-200.png" />
+        <uap:SplashScreen Image="Assets\SplashScreen.scale-200.png" />
       </uap:VisualElements>
     </Application>
   </Applications>
