@@ -1,8 +1,8 @@
+using AutoPortal.Helpers;
 using System;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using AutoPortal.Helpers;
 
 namespace AutoPortal.Services
 {
@@ -13,18 +13,18 @@ namespace AutoPortal.Services
         private AppSettings _settings;
 
         public static AppSettingsService Instance => _instance ??= new AppSettingsService();
-
         public AppSettings Settings => _settings;
 
         public AppSettingsService()
         {
             var appDataDir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "AutoPortal"
-            );
+                "AutoPortal");
 
             if (!Directory.Exists(appDataDir))
+            {
                 Directory.CreateDirectory(appDataDir);
+            }
 
             _settingsFilePath = Path.Combine(appDataDir, "settings.json");
             _settings = LoadSettings();
@@ -34,7 +34,6 @@ namespace AutoPortal.Services
         {
             try
             {
-                var options = new JsonSerializerOptions { WriteIndented = true };
                 var json = JsonSerializer.Serialize(_settings, AppJsonContext.Default.AppSettings);
                 File.WriteAllText(_settingsFilePath, json);
             }
@@ -66,7 +65,7 @@ namespace AutoPortal.Services
     public class AppSettings
     {
         [JsonPropertyName("theme")]
-        public int Theme { get; set; } = 0;
+        public int Theme { get; set; }
 
         [JsonPropertyName("enableAutoLogin")]
         public bool EnableAutoLogin { get; set; } = true;
@@ -81,7 +80,7 @@ namespace AutoPortal.Services
         public int CheckNetworkTimeout { get; set; } = 3;
 
         [JsonPropertyName("startMinimized")]
-        public bool StartMinimized { get; set; } = false;
+        public bool StartMinimized { get; set; }
 
         [JsonPropertyName("windowWidth")]
         public double WindowWidth { get; set; } = 1000;

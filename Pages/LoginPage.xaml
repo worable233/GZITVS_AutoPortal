@@ -8,69 +8,71 @@
     Loaded="Page_Loaded"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Padding="24">
-        <StackPanel 
-            Spacing="16" 
-            HorizontalAlignment="Center" 
-            VerticalAlignment="Center"
-            MinWidth="320"
-            MaxWidth="480">
-
-            <TextBlock 
-                Text="登录"
-                Style="{StaticResource TitleTextBlockStyle}"
-                HorizontalAlignment="Center"/>
-
-            <TextBlock 
-                Text="请输入您的学号和密码"
-                Style="{StaticResource CaptionTextBlockStyle}"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Padding="20">
+            <Border
                 HorizontalAlignment="Center"
-                Margin="0,0,0,24"/>
+                VerticalAlignment="Center"
+                MaxWidth="460"
+                Padding="22"
+                CornerRadius="10"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1">
+                <StackPanel Spacing="16">
+                    <TextBlock
+                        Text="登录"
+                        Style="{StaticResource TitleTextBlockStyle}"
+                        HorizontalAlignment="Center"/>
 
-            <TextBox 
-                x:Name="UsernameTextBox"
-                Header="学号"
-                PlaceholderText="请输入您的学号"
-                InputScope="Digits"
-                IsSpellCheckEnabled="False"
-                MinWidth="240"/>
+                    <TextBlock
+                        Text="请输入您的学号和密码"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,8"/>
 
-            <PasswordBox 
-                x:Name="PasswordBox"
-                Header="密码"
-                PlaceholderText="请输入您的密码"
-                PasswordRevealMode="Peek"
-                MinWidth="240"/>
+                    <TextBox
+                        x:Name="UsernameTextBox"
+                        Header="学号"
+                        PlaceholderText="请输入您的学号"
+                        InputScope="Digits"
+                        IsSpellCheckEnabled="False"/>
 
-            <TextBlock 
-                x:Name="ErrorMessage"
-                Foreground="{ThemeResource SystemErrorTextColor}"
-                Visibility="Collapsed"
-                TextWrapping="Wrap"
-                MaxWidth="480"/>
+                    <PasswordBox
+                        x:Name="PasswordBox"
+                        Header="密码"
+                        PlaceholderText="请输入您的密码"
+                        PasswordRevealMode="Peek"/>
 
-            <Grid>
-                <Button 
-                    x:Name="LoginButton"
-                    Content="登录"
-                    Style="{StaticResource AccentButtonStyle}"
-                    HorizontalAlignment="Stretch"
-                    Click="LoginButton_Click"/>
+                    <TextBlock
+                        x:Name="ErrorMessage"
+                        Foreground="{ThemeResource SystemErrorTextColor}"
+                        Visibility="Collapsed"
+                        TextWrapping="Wrap"/>
 
-                <ProgressRing 
-                    x:Name="ProgressRing"
-                    IsActive="False"
-                    Visibility="Collapsed"
-                    Width="24"
-                    Height="24"
-                    HorizontalAlignment="Center"/>
-            </Grid>
+                    <Grid>
+                        <Button
+                            x:Name="LoginButton"
+                            Content="登录"
+                            Style="{StaticResource AccentButtonStyle}"
+                            HorizontalAlignment="Stretch"
+                            Click="LoginButton_Click"/>
 
-            <Button 
-                Content="保存账号信息"
-                HorizontalAlignment="Center"
-                Click="SaveConfigButton_Click"/>
-        </StackPanel>
-    </Grid>
+                        <ProgressRing
+                            x:Name="ProgressRing"
+                            IsActive="False"
+                            Visibility="Collapsed"
+                            Width="22"
+                            Height="22"
+                            HorizontalAlignment="Center"/>
+                    </Grid>
+
+                    <Button
+                        Content="前往配置账号"
+                        HorizontalAlignment="Center"
+                        Click="SaveConfigButton_Click"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
 </Page>

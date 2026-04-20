@@ -1,7 +1,7 @@
+using AutoPortal.Models;
 using System;
 using System.Runtime.InteropServices;
 using System.Text.Json;
-using AutoPortal.Models;
 
 namespace AutoPortal.Helpers
 {
@@ -14,8 +14,7 @@ namespace AutoPortal.Helpers
         private static extern int ValidateLogin(
             [MarshalAs(UnmanagedType.LPWStr)] string studentId,
             [MarshalAs(UnmanagedType.LPWStr)] string password,
-            ref IntPtr errorMsg
-        );
+            ref IntPtr errorMsg);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, ExactSpelling = true)]
         private static extern IntPtr LoadConfig(ref IntPtr errorMsg);
@@ -23,8 +22,7 @@ namespace AutoPortal.Helpers
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, ExactSpelling = true)]
         private static extern int SaveConfig(
             [MarshalAs(UnmanagedType.LPWStr)] string jsonString,
-            ref IntPtr errorMsg
-        );
+            ref IntPtr errorMsg);
 
         [DllImport(DllName, CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Unicode, ExactSpelling = true)]
         private static extern int DeleteConfig();
@@ -50,22 +48,19 @@ namespace AutoPortal.Helpers
 
             if (!_dllAvailable)
             {
-                errorMessage = "Login.dll 不存在，请确保 Login.dll 与 AutoPortal.exe 在同一目录";
+                errorMessage = "Login.dll 不存在，请确保 Login.dll 与 AutoPortal.exe 在同一目录。";
                 return false;
             }
 
             IntPtr errorMsgPtr = IntPtr.Zero;
-
             try
             {
                 int result = ValidateLogin(studentId, password, ref errorMsgPtr);
-                
                 if (errorMsgPtr != IntPtr.Zero)
                 {
                     errorMessage = Marshal.PtrToStringUni(errorMsgPtr) ?? string.Empty;
                     FreeString(errorMsgPtr);
                 }
-
                 return result == 1;
             }
             catch (Exception ex)
@@ -85,7 +80,6 @@ namespace AutoPortal.Helpers
             }
 
             IntPtr errorMsgPtr = IntPtr.Zero;
-
             try
             {
                 IntPtr jsonPtr = LoadConfig(ref errorMsgPtr);
@@ -96,20 +90,20 @@ namespace AutoPortal.Helpers
                     FreeString(errorMsgPtr);
                 }
 
-                if (jsonPtr != IntPtr.Zero)
+                if (jsonPtr == IntPtr.Zero)
                 {
-                    string? json = Marshal.PtrToStringUni(jsonPtr);
-                    FreeString(jsonPtr);
-
-                    if (string.IsNullOrEmpty(json) || json == "{}")
-                    {
-                        return new LoginConfig();
-                    }
-
-                    return JsonSerializer.Deserialize(json, AppJsonContext.Default.LoginConfig);
+                    return new LoginConfig();
                 }
 
-                return new LoginConfig();
+                string? json = Marshal.PtrToStringUni(jsonPtr);
+                FreeString(jsonPtr);
+
+                if (string.IsNullOrWhiteSpace(json) || json == "{}")
+                {
+                    return new LoginConfig();
+                }
+
+                return JsonSerializer.Deserialize(json, AppJsonContext.Default.LoginConfig);
             }
             catch (Exception ex)
             {
@@ -124,16 +118,14 @@ namespace AutoPortal.Helpers
 
             if (!_dllAvailable)
             {
-                errorMessage = "Login.dll 不存在，无法保存配置";
+                errorMessage = "Login.dll 不存在，无法保存配置。";
                 return false;
             }
 
             IntPtr errorMsgPtr = IntPtr.Zero;
-
             try
             {
                 string json = JsonSerializer.Serialize(config, AppJsonContext.Default.LoginConfig);
-
                 int result = SaveConfig(json, ref errorMsgPtr);
 
                 if (errorMsgPtr != IntPtr.Zero)
@@ -153,10 +145,7 @@ namespace AutoPortal.Helpers
 
         public bool Delete()
         {
-            if (!_dllAvailable)
-            {
-                return false;
-            }
+            if (!_dllAvailable) return false;
 
             try
             {

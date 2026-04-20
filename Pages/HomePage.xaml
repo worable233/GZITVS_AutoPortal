@@ -4,46 +4,51 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:winui="using:Microsoft.UI.Xaml.Controls"
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Padding="24">
+    <Grid Padding="20" SizeChanged="RootGrid_SizeChanged">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,24">
-            <TextBlock 
-                Text="AutoPortal"
-                Style="{StaticResource TitleTextBlockStyle}"/>
-            <TextBlock 
+        <StackPanel Grid.Row="0" Margin="0,0,0,18" Spacing="4">
+            <TextBlock Text="AutoPortal" Style="{StaticResource TitleTextBlockStyle}"/>
+            <TextBlock
                 Text="校园网自动登录助手"
-                Style="{StaticResource CaptionTextBlockStyle}"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                Style="{StaticResource CaptionTextBlockStyle}"/>
         </StackPanel>
 
         <ScrollViewer Grid.Row="1">
-            <StackPanel Spacing="16">
-                <!-- 新增卡片区 -->
-                <Grid ColumnSpacing="16" RowSpacing="16">
+            <StackPanel Spacing="14">
+                <Grid x:Name="DashboardGrid" ColumnSpacing="14" RowSpacing="14">
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition x:Name="DashboardCol0" Width="*"/>
+                        <ColumnDefinition x:Name="DashboardCol1" Width="0"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- 卡片1：流量统计 -->
-                    <Border Grid.Row="0" Grid.Column="0" Padding="16" Margin="0" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <Border
+                        x:Name="TrafficCard"
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Padding="14"
+                        CornerRadius="10"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1">
                         <StackPanel Spacing="8">
                             <TextBlock Text="流量统计" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                            <lvc:CartesianChart Height="120" Series="{x:Bind TrafficSeries}"/>
-                            <Grid ColumnSpacing="12" RowSpacing="4" Margin="0,8,0,0">
+                            <lvc:CartesianChart Height="140" Series="{x:Bind TrafficSeries}"/>
+
+                            <Grid ColumnSpacing="12" RowSpacing="4">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
@@ -60,6 +65,7 @@
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="活跃连接"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" x:Name="ActiveConnectionsText" Text="0"/>
                             </Grid>
+
                             <Grid ColumnSpacing="12" RowSpacing="4">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -70,9 +76,9 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="上传量"/>
+                                <TextBlock Grid.Row="0" Grid.Column="0" Text="上传总量"/>
                                 <TextBlock Grid.Row="0" Grid.Column="1" x:Name="UploadTotalText" Text="0 MB"/>
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="下载量"/>
+                                <TextBlock Grid.Row="1" Grid.Column="0" Text="下载总量"/>
                                 <TextBlock Grid.Row="1" Grid.Column="1" x:Name="DownloadTotalText" Text="0 MB"/>
                                 <TextBlock Grid.Row="2" Grid.Column="0" Text="内存占用"/>
                                 <TextBlock Grid.Row="2" Grid.Column="1" x:Name="MemoryUsageText" Text="0 MB"/>
@@ -80,47 +86,79 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- 卡片2：网站测速 -->
-                    <Border Grid.Row="0" Grid.Column="1" Padding="16" Margin="0" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <Border
+                        x:Name="SpeedCard"
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Padding="14"
+                        CornerRadius="10"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1">
                         <StackPanel Spacing="8">
-                            <TextBlock Text="网站测速" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                            <ItemsControl x:Name="SpeedTestList">
-                                <ItemsControl.Items>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <Button Content="Apple" Click="PingApple_Click"/>
-                                        <TextBlock x:Name="ApplePingText" Text="- ms"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <Button Content="Github" Click="PingGithub_Click"/>
-                                        <TextBlock x:Name="GithubPingText" Text="- ms"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <Button Content="Baidu" Click="PingBaidu_Click"/>
-                                        <TextBlock x:Name="BaiduPingText" Text="- ms"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <Button Content="Google" Click="PingGoogle_Click"/>
-                                        <TextBlock x:Name="GooglePingText" Text="- ms"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <Button Content="Bing" Click="PingBing_Click"/>
-                                        <TextBlock x:Name="BingPingText" Text="- ms"/>
-                                    </StackPanel>
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <Button Content="QQ" Click="PingQQ_Click"/>
-                                        <TextBlock x:Name="QQPingText" Text="- ms"/>
-                                    </StackPanel>
-                                </ItemsControl.Items>
-                            </ItemsControl>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Text="网站测速" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center"/>
+                                <Button Grid.Column="1" Content="测试全部" Click="PingAll_Click"/>
+                            </Grid>
+
+                            <Grid ColumnSpacing="8" RowSpacing="8">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Apple" Click="PingApple_Click"/>
+                                    <TextBlock x:Name="ApplePingText" Text="- ms" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Github" Click="PingGithub_Click"/>
+                                    <TextBlock x:Name="GithubPingText" Text="- ms" VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Baidu" Click="PingBaidu_Click"/>
+                                    <TextBlock x:Name="BaiduPingText" Text="- ms" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Google" Click="PingGoogle_Click"/>
+                                    <TextBlock x:Name="GooglePingText" Text="- ms" VerticalAlignment="Center"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" Spacing="8">
+                                    <Button Content="Bing" Click="PingBing_Click"/>
+                                    <TextBlock x:Name="BingPingText" Text="- ms" VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Spacing="8">
+                                    <Button Content="QQ" Click="PingQQ_Click"/>
+                                    <TextBlock x:Name="QQPingText" Text="- ms" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
-                    <!-- 卡片3：IP信息 -->
-                    <Border Grid.Row="1" Grid.Column="0" Padding="16" Margin="0" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <Border
+                        x:Name="IpCard"
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Padding="14"
+                        CornerRadius="10"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1">
                         <StackPanel Spacing="8">
-                            <TextBlock Text="IP信息" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                            <TextBlock Text="IP 信息" Style="{StaticResource SubtitleTextBlockStyle}"/>
                             <TextBlock x:Name="CountryText" Text="国家: -"/>
-                            <TextBlock x:Name="IPText" Text="IP地址: -"/>
+                            <TextBlock x:Name="IPText" Text="IP 地址: -"/>
                             <TextBlock x:Name="ISPText" Text="服务商: -"/>
                             <TextBlock x:Name="OrgText" Text="组织: -"/>
                             <TextBlock x:Name="LocationText" Text="位置: -"/>
@@ -129,8 +167,15 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- 卡片4：系统信息 -->
-                    <Border Grid.Row="1" Grid.Column="1" Padding="16" Margin="0" CornerRadius="8" Background="{ThemeResource CardBackgroundFillColorDefaultBrush}" BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}" BorderThickness="1">
+                    <Border
+                        x:Name="SystemCard"
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        Padding="14"
+                        CornerRadius="10"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1">
                         <StackPanel Spacing="8">
                             <TextBlock Text="系统信息" Style="{StaticResource SubtitleTextBlockStyle}"/>
                             <TextBlock x:Name="OSInfoText" Text="操作系统: -"/>
@@ -141,32 +186,31 @@
                     </Border>
                 </Grid>
 
-                <!-- 原有内容保留 -->
-                <Grid 
+                <Grid
                     x:Name="StatusCard"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1"
-                    CornerRadius="8"
-                    Padding="24"
+                    CornerRadius="10"
+                    Padding="18"
                     Visibility="Collapsed">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <FontIcon 
+                    <FontIcon
                         x:Name="StatusIcon"
                         Grid.Column="0"
                         Glyph="&#xE895;"
-                        FontSize="48"
+                        FontSize="40"
                         Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
-                        Margin="0,0,24,0"/>
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock 
+                        Margin="0,0,16,0"/>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
+                        <TextBlock
                             x:Name="StatusTitle"
                             Text="正在检测..."
                             Style="{StaticResource SubtitleTextBlockStyle}"/>
-                        <TextBlock 
+                        <TextBlock
                             x:Name="StatusDescription"
                             Text="正在检查网络连接状态"
                             Foreground="{ThemeResource TextFillColorSecondaryBrush}"
@@ -175,53 +219,54 @@
                 </Grid>
 
                 <StackPanel Spacing="8">
-                    <TextBlock 
-                        Text="快捷操作"
-                        Style="{StaticResource BaseTextBlockStyle}"
-                        Margin="0,8,0,0"/>
+                    <TextBlock Text="快捷操作" Style="{StaticResource BaseTextBlockStyle}" Margin="0,4,0,0"/>
                     <Grid ColumnSpacing="8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Button 
+
+                        <Button
                             Grid.Column="0"
                             Style="{StaticResource AccentButtonStyle}"
                             HorizontalAlignment="Stretch"
                             Click="LoginButton_Click">
                             <StackPanel Spacing="8">
-                                <FontIcon Glyph="&#xE77B;" FontSize="24"/>
+                                <FontIcon Glyph="&#xE77B;" FontSize="20"/>
                                 <TextBlock Text="立即登录"/>
                             </StackPanel>
                         </Button>
-                        <Button 
+
+                        <Button
                             Grid.Column="1"
                             HorizontalAlignment="Stretch"
                             Click="ConfigButton_Click">
                             <StackPanel Spacing="8">
-                                <FontIcon Glyph="&#xE713;" FontSize="24"/>
+                                <FontIcon Glyph="&#xE713;" FontSize="20"/>
                                 <TextBlock Text="配置账号"/>
                             </StackPanel>
                         </Button>
-                        <Button 
+
+                        <Button
+                            x:Name="RefreshButton"
                             Grid.Column="2"
                             HorizontalAlignment="Stretch"
                             Click="RefreshButton_Click">
                             <StackPanel Spacing="8">
-                                <FontIcon Glyph="&#xE72C;" FontSize="24"/>
+                                <FontIcon Glyph="&#xE72C;" FontSize="20"/>
                                 <TextBlock Text="刷新状态"/>
                             </StackPanel>
                         </Button>
                     </Grid>
                 </StackPanel>
 
-                <Expander Header="使用说明" HorizontalAlignment="Stretch">
+                <Expander Header="使用说明">
                     <StackPanel Spacing="8" Padding="12">
-                        <TextBlock Text="1. 首次使用请配置您的学号和密码" TextWrapping="Wrap"/>
-                        <TextBlock Text="2. 配置完成后，连接校园网即可自动登录" TextWrapping="Wrap"/>
-                        <TextBlock Text="3. 如需修改配置，请点击左侧菜单的 &quot;配置管理&quot;" TextWrapping="Wrap"/>
-                        <TextBlock Text="4. 遇到问题请检查网络连接或重新配置" TextWrapping="Wrap"/>
+                        <TextBlock Text="1. 首次使用请先配置学号与密码" TextWrapping="Wrap"/>
+                        <TextBlock Text="2. 连接校园网后可在首页一键登录" TextWrapping="Wrap"/>
+                        <TextBlock Text="3. 开启自动登录后会在检测到校园网时自动尝试登录" TextWrapping="Wrap"/>
+                        <TextBlock Text="4. 如有异常请先点“刷新状态”，再检查配置和网络连接" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Expander>
             </StackPanel>

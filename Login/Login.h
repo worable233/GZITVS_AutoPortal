@@ -1,8 +1,9 @@
 #pragma once
 
-// Export macro: when building the DLL define LOGINVALIDATOR_EXPORTS (handled by project settings)
-// To avoid build errors if the macro is not set, fall back to no-attribute (safe for building this project).
-#ifdef LOGINVALIDATOR_EXPORTS
+// Export macro:
+// Login.vcxproj currently defines LOGIN_EXPORTS.
+// Keep compatibility with both macro names.
+#if defined(LOGINVALIDATOR_EXPORTS) || defined(LOGIN_EXPORTS)
 #define LOGINVALIDATOR_API __declspec(dllexport)
 #else
 #define LOGINVALIDATOR_API

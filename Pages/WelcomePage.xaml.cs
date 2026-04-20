@@ -10,7 +10,7 @@ namespace AutoPortal.Pages
 {
     public sealed partial class WelcomePage : Page
     {
-        private int _currentStep = 0;
+        private int _currentStep;
         private readonly LoginValidator _loginValidator = new();
 
         public WelcomePage()
@@ -28,7 +28,7 @@ namespace AutoPortal.Pages
         {
             _currentStep = step;
 
-            StepContent.Transitions = new TransitionCollection { new EntranceThemeTransition { FromVerticalOffset = 50 } };
+            StepContent.Transitions = new TransitionCollection { new EntranceThemeTransition { FromVerticalOffset = 40 } };
             StepContent.Visibility = Visibility.Collapsed;
             await Task.Delay(100);
 
@@ -36,7 +36,7 @@ namespace AutoPortal.Pages
             {
                 case 0:
                     StepTitle.Text = "欢迎使用 AutoPortal";
-                    StepDescription.Text = "自动登录校园网门户系统\n让您的网络连接更加便捷";
+                    StepDescription.Text = "自动登录校园网门户系统\n让网络连接更省心";
                     NextButton.Content = "开始配置";
                     InputPanel.Visibility = Visibility.Collapsed;
                     break;
@@ -48,22 +48,17 @@ namespace AutoPortal.Pages
                     break;
                 case 2:
                     StepTitle.Text = "配置完成";
-                    StepDescription.Text = "配置已保存，即将进入主界面";
+                    StepDescription.Text = "配置已保存，点击按钮进入首页";
                     NextButton.Content = "开始使用";
                     InputPanel.Visibility = Visibility.Collapsed;
                     break;
             }
 
             StepContent.Visibility = Visibility.Visible;
-            UpdateProgress();
-        }
-
-        private void UpdateProgress()
-        {
             ProgressBar.Value = (_currentStep + 1) / 3.0 * 100;
         }
 
-        private async void NextButton_Click(object? _, object? __)
+        private async void NextButton_Click(object? sender, object? e)
         {
             if (_currentStep == 1)
             {
@@ -108,15 +103,16 @@ namespace AutoPortal.Pages
 
                 NextButton.IsEnabled = true;
                 ProgressRing.IsActive = false;
+                return;
             }
-            else if (_currentStep == 2)
+
+            if (_currentStep == 2)
             {
                 NavigationService.Instance.NavigateTo(PageType.Home);
+                return;
             }
-            else
-            {
-                await ShowStepAsync(_currentStep + 1);
-            }
+
+            await ShowStepAsync(_currentStep + 1);
         }
     }
 }

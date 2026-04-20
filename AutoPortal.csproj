@@ -44,6 +44,18 @@
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
   </PropertyGroup>
 
+  <Target Name="CopyNativeDllsToOutput" AfterTargets="Build">
+    <Copy SourceFiles="Login\x64\Release\Login.dll" DestinationFolder="$(TargetDir)" Condition="Exists('Login\x64\Release\Login.dll')" />
+    <Copy SourceFiles="Login\x86\Release\Login.dll" DestinationFolder="$(TargetDir)" Condition="Exists('Login\x86\Release\Login.dll')" />
+    <Copy SourceFiles="Login\arm64\Release\Login.dll" DestinationFolder="$(TargetDir)" Condition="Exists('Login\arm64\Release\Login.dll')" />
+    <Copy SourceFiles="Login\x64\Release\libcurl.dll" DestinationFolder="$(TargetDir)" Condition="Exists('Login\x64\Release\libcurl.dll')" />
+    <Copy SourceFiles="Login\x64\Release\zlib1.dll" DestinationFolder="$(TargetDir)" Condition="Exists('Login\x64\Release\zlib1.dll')" />
+    <Copy SourceFiles="Login\x86\Release\libcurl.dll" DestinationFolder="$(TargetDir)" Condition="Exists('Login\x86\Release\libcurl.dll')" />
+    <Copy SourceFiles="Login\x86\Release\zlib1.dll" DestinationFolder="$(TargetDir)" Condition="Exists('Login\x86\Release\zlib1.dll')" />
+    <Copy SourceFiles="Login\arm64\Release\libcurl.dll" DestinationFolder="$(TargetDir)" Condition="Exists('Login\arm64\Release\libcurl.dll')" />
+    <Copy SourceFiles="Login\arm64\Release\zlib1.dll" DestinationFolder="$(TargetDir)" Condition="Exists('Login\arm64\Release\zlib1.dll')" />
+  </Target>
+
   <Target Name="CopyNativeDlls" BeforeTargets="Publish">
     <Copy SourceFiles="Login\x64\Release\Login.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x64' and Exists('Login\x64\Release\Login.dll')" />
     <Copy SourceFiles="Login\x86\Release\Login.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-x86' and Exists('Login\x86\Release\Login.dll')" />
@@ -76,7 +88,7 @@
     <MakeDir Directories="$(TempZipDir)" />
     
     <ItemGroup>
-      <FilesToZip Include="$(PublishDir)\**\*" Exclude="$(PublishDir)\Assets\**\*;$(PublishDir)\Login.dll;$(PublishDir)\libcurl.dll;$(PublishDir)\zlib1.dll" />
+      <FilesToZip Include="$(PublishDir)\**\*" />
     </ItemGroup>
 
     <Copy SourceFiles="@(FilesToZip)" DestinationFiles="$(TempZipDir)\%(RecursiveDir)%(Filename)%(Extension)" />

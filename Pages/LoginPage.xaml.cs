@@ -21,12 +21,11 @@ namespace AutoPortal.Pages
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            _config = _loginValidator.Load(out string error);
+            _config = _loginValidator.Load(out _);
 
             if (_config != null && !string.IsNullOrEmpty(_config.Username))
             {
                 UsernameTextBox.Text = _config.Username;
-
                 if (!string.IsNullOrEmpty(_config.Password))
                 {
                     PasswordBox.Password = _config.Password;
@@ -41,15 +40,13 @@ namespace AutoPortal.Pages
 
             if (string.IsNullOrEmpty(username))
             {
-                ErrorMessage.Text = "请输入学号";
-                ErrorMessage.Visibility = Visibility.Visible;
+                ShowError("请输入学号");
                 return;
             }
 
             if (string.IsNullOrEmpty(password))
             {
-                ErrorMessage.Text = "请输入密码";
-                ErrorMessage.Visibility = Visibility.Visible;
+                ShowError("请输入密码");
                 return;
             }
 
@@ -58,21 +55,19 @@ namespace AutoPortal.Pages
 
             try
             {
-                if (_loginValidator.Validate(username, password, out string error))
+                bool ok = await Task.Run(() => _loginValidator.Validate(username, password, out string error)
+                    ? true
+                    : throw new InvalidOperationException(error));
+
+                if (ok)
                 {
                     await ShowSuccessAsync();
                     NavigationService.Instance.NavigateTo(PageType.Home);
                 }
-                else
-                {
-                    ErrorMessage.Text = $"登录失败: {error}";
-                    ErrorMessage.Visibility = Visibility.Visible;
-                }
             }
             catch (Exception ex)
             {
-                ErrorMessage.Text = $"登录出错: {ex.Message}";
-                ErrorMessage.Visibility = Visibility.Visible;
+                ShowError($"登录失败: {ex.Message}");
             }
             finally
             {
@@ -92,6 +87,12 @@ namespace AutoPortal.Pages
             ProgressRing.Visibility = isLoading ? Visibility.Visible : Visibility.Collapsed;
             UsernameTextBox.IsEnabled = !isLoading;
             PasswordBox.IsEnabled = !isLoading;
+        }
+
+        private void ShowError(string message)
+        {
+            ErrorMessage.Text = message;
+            ErrorMessage.Visibility = Visibility.Visible;
         }
 
         private async Task ShowSuccessAsync()

@@ -7,92 +7,71 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Padding="24">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <StackPanel Grid.Row="0" Margin="0,0,0,24">
-            <TextBlock 
-                Text="配置管理"
-                Style="{StaticResource TitleTextBlockStyle}"/>
-            <TextBlock 
-                Text="管理您的账号和系统配置"
-                Style="{StaticResource CaptionTextBlockStyle}"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-        </StackPanel>
-
-        <ScrollViewer Grid.Row="1">
-            <StackPanel Spacing="16" MaxWidth="600" HorizontalAlignment="Stretch">
-                <StackPanel Spacing="8">
-                    <TextBlock 
-                        Text="账号配置"
-                        Style="{StaticResource BaseTextBlockStyle}"/>
-
-                    <TextBox 
-                        x:Name="UsernameTextBox"
-                        Header="学号"
-                        PlaceholderText="请输入您的学号"
-                        InputScope="Digits"
-                        IsSpellCheckEnabled="False"
-                        HorizontalAlignment="Stretch"/>
-
-                    <PasswordBox 
-                        x:Name="PasswordBox"
-                        Header="密码（可选）"
-                        PlaceholderText="留空则不保存密码"
-                        PasswordRevealMode="Peek"
-                        HorizontalAlignment="Stretch"/>
-
-                    <TextBox 
-                        x:Name="PortalUrlTextBox"
-                        Header="Portal 地址"
-                        PlaceholderText="http://10.189.108.11/"
-                        Text="http://10.189.108.11/"
-                        HorizontalAlignment="Stretch"/>
-
-                    <CheckBox 
-                        x:Name="AutoLoginCheckBox"
-                        Content="启用自动登录"/>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <Grid Padding="20">
+            <StackPanel MaxWidth="760" Spacing="16">
+                <StackPanel Spacing="4">
+                    <TextBlock Text="配置管理" Style="{StaticResource TitleTextBlockStyle}"/>
+                    <TextBlock
+                        Text="管理账号、门户地址与自动登录设置"
+                        Style="{StaticResource CaptionTextBlockStyle}"/>
                 </StackPanel>
 
-                <InfoBar 
-                    x:Name="SuccessMessage"
-                    Severity="Success"
-                    IsOpen="True"
-                    Visibility="Collapsed"/>
+                <Border
+                    Padding="16"
+                    CornerRadius="10"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="账号配置" Style="{StaticResource BaseTextBlockStyle}"/>
 
-                <InfoBar 
-                    x:Name="ErrorMessage"
-                    Severity="Error"
-                    IsOpen="True"
-                    Visibility="Collapsed"/>
+                        <TextBox
+                            x:Name="UsernameTextBox"
+                            Header="学号"
+                            PlaceholderText="请输入您的学号"
+                            InputScope="Digits"
+                            IsSpellCheckEnabled="False"/>
 
-                <StackPanel Spacing="8" Orientation="Horizontal">
-                    <Button 
-                        Content="保存配置"
-                        Style="{StaticResource AccentButtonStyle}"
-                        Click="SaveButton_Click"/>
+                        <PasswordBox
+                            x:Name="PasswordBox"
+                            Header="密码（可选）"
+                            PlaceholderText="留空则不保存密码"
+                            PasswordRevealMode="Peek"/>
 
-                    <Button 
-                        Content="测试登录"
-                        Click="TestButton_Click"/>
+                        <TextBox
+                            x:Name="PortalUrlTextBox"
+                            Header="Portal 地址"
+                            PlaceholderText="http://10.189.108.11/"
+                            Text="http://10.189.108.11/"/>
 
-                    <Button 
-                        Content="删除配置"
-                        Click="DeleteButton_Click"/>
-                </StackPanel>
+                        <CheckBox
+                            x:Name="AutoLoginCheckBox"
+                            Content="启用自动登录"/>
 
-                <Expander Header="配置说明" HorizontalAlignment="Stretch">
+                        <StackPanel Spacing="8" Orientation="Horizontal">
+                            <Button
+                                Content="保存配置"
+                                Style="{StaticResource AccentButtonStyle}"
+                                Click="SaveButton_Click"/>
+                            <Button Content="测试登录页" Click="TestButton_Click"/>
+                            <Button Content="删除配置" Click="DeleteButton_Click"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <InfoBar x:Name="SuccessMessage" Severity="Success" IsOpen="False" Visibility="Collapsed"/>
+                <InfoBar x:Name="ErrorMessage" Severity="Error" IsOpen="False" Visibility="Collapsed"/>
+
+                <Expander Header="配置说明">
                     <StackPanel Spacing="8" Padding="12">
-                        <TextBlock Text="• 学号：您的校园网登录账号" TextWrapping="Wrap"/>
-                        <TextBlock Text="• 密码：可选，保存后可自动登录" TextWrapping="Wrap"/>
-                        <TextBlock Text="• Portal 地址：校园网门户地址，一般无需修改" TextWrapping="Wrap"/>
-                        <TextBlock Text="• 自动登录：启用后连接校园网时自动登录" TextWrapping="Wrap"/>
+                        <TextBlock Text="• 学号：校园网账号" TextWrapping="Wrap"/>
+                        <TextBlock Text="• 密码：保存后可用于自动登录" TextWrapping="Wrap"/>
+                        <TextBlock Text="• Portal 地址：一般无需修改" TextWrapping="Wrap"/>
+                        <TextBlock Text="• 自动登录：连接校园网后自动尝试登录" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Expander>
             </StackPanel>
-        </ScrollViewer>
-    </Grid>
+        </Grid>
+    </ScrollViewer>
 </Page>

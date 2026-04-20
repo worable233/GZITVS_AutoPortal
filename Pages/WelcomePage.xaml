@@ -7,87 +7,89 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Padding="24">
+    <Grid Padding="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Spacing="8" HorizontalAlignment="Center">
-            <TextBlock 
+        <StackPanel Grid.Row="0" Spacing="8" HorizontalAlignment="Center" MaxWidth="720">
+            <TextBlock
                 x:Name="StepTitle"
                 Text="欢迎使用 AutoPortal"
                 Style="{StaticResource TitleTextBlockStyle}"
                 HorizontalAlignment="Center"/>
-            <TextBlock 
+            <TextBlock
                 x:Name="StepDescription"
                 Text="自动登录校园网门户系统"
                 Style="{StaticResource SubtitleTextBlockStyle}"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                 HorizontalAlignment="Center"
                 TextWrapping="Wrap"
                 TextAlignment="Center"/>
         </StackPanel>
 
-        <StackPanel 
-            x:Name="StepContent"
+        <Border
             Grid.Row="1"
-            Spacing="16"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            MinWidth="320"
-            MaxWidth="480">
+            MaxWidth="460"
+            Padding="20"
+            CornerRadius="10"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+            BorderThickness="1">
+            <StackPanel
+                x:Name="StepContent"
+                Spacing="14"
+                HorizontalAlignment="Stretch">
 
-            <StackPanel x:Name="InputPanel" Spacing="12">
-                <TextBox 
-                    x:Name="UsernameTextBox"
-                    Header="学号"
-                    PlaceholderText="请输入您的学号"
-                    InputScope="Digits"
-                    IsSpellCheckEnabled="False"
-                    MinWidth="240"/>
-                
-                <PasswordBox 
-                    x:Name="PasswordBox"
-                    Header="密码"
-                    PlaceholderText="请输入您的密码"
-                    PasswordRevealMode="Peek"
-                    MinWidth="240"/>
+                <StackPanel x:Name="InputPanel" Spacing="12">
+                    <TextBox
+                        x:Name="UsernameTextBox"
+                        Header="学号"
+                        PlaceholderText="请输入您的学号"
+                        InputScope="Digits"
+                        IsSpellCheckEnabled="False"/>
 
-                <TextBlock 
-                    x:Name="ErrorMessage"
-                    Foreground="{ThemeResource SystemErrorTextColor}"
-                    Visibility="Collapsed"
-                    TextWrapping="Wrap"
-                    MaxWidth="480"/>
+                    <PasswordBox
+                        x:Name="PasswordBox"
+                        Header="密码"
+                        PlaceholderText="请输入您的密码"
+                        PasswordRevealMode="Peek"/>
+
+                    <TextBlock
+                        x:Name="ErrorMessage"
+                        Foreground="{ThemeResource SystemErrorTextColor}"
+                        Visibility="Collapsed"
+                        TextWrapping="Wrap"/>
+                </StackPanel>
             </StackPanel>
-        </StackPanel>
+        </Border>
 
-        <StackPanel Grid.Row="2" Spacing="16">
-            <ProgressBar 
+        <StackPanel Grid.Row="2" Spacing="12" Margin="0,18,0,0">
+            <ProgressBar
                 x:Name="ProgressBar"
                 Value="33"
                 Maximum="100"
                 Height="4"
                 CornerRadius="2"/>
 
-            <Grid>
-                <Button 
+            <Grid HorizontalAlignment="Center">
+                <Button
                     x:Name="NextButton"
                     Content="开始配置"
                     Style="{StaticResource AccentButtonStyle}"
-                    HorizontalAlignment="Center"
-                    MinWidth="160"
+                    MinWidth="180"
                     Click="NextButton_Click"/>
-                
-                <ProgressRing 
+
+                <ProgressRing
                     x:Name="ProgressRing"
                     IsActive="False"
-                    Width="24"
-                    Height="24"
-                    HorizontalAlignment="Center"
-                    Margin="180,0,0,0"/>
+                    Width="22"
+                    Height="22"
+                    HorizontalAlignment="Right"
+                    Margin="195,0,0,0"/>
             </Grid>
         </StackPanel>
     </Grid>

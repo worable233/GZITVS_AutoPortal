@@ -24,15 +24,15 @@ namespace AutoPortal.Pages
 
         private void LoadConfig()
         {
-            _config = _loginValidator.Load(out string error);
+            _config = _loginValidator.Load(out _);
+            if (_config == null) return;
 
-            if (_config != null)
-            {
-                UsernameTextBox.Text = _config.Username;
-                PasswordBox.Password = _config.Password;
-                PortalUrlTextBox.Text = _config.PortalUrl;
-                AutoLoginCheckBox.IsChecked = _config.AutoLogin;
-            }
+            UsernameTextBox.Text = _config.Username;
+            PasswordBox.Password = _config.Password;
+            PortalUrlTextBox.Text = string.IsNullOrWhiteSpace(_config.PortalUrl)
+                ? "http://10.189.108.11/"
+                : _config.PortalUrl;
+            AutoLoginCheckBox.IsChecked = _config.AutoLogin;
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
@@ -43,20 +43,17 @@ namespace AutoPortal.Pages
 
             if (string.IsNullOrEmpty(username))
             {
-                ErrorMessage.Message = "请输入学号";
-                ErrorMessage.IsOpen = true;
+                ShowError("请输入学号");
                 return;
             }
 
             if (string.IsNullOrEmpty(portalUrl))
             {
-                ErrorMessage.Message = "请输入 Portal 地址";
-                ErrorMessage.IsOpen = true;
+                ShowError("请输入 Portal 地址");
                 return;
             }
 
-            SuccessMessage.IsOpen = false;
-            ErrorMessage.IsOpen = false;
+            HideMessages();
 
             _config = new LoginConfig
             {
@@ -68,13 +65,11 @@ namespace AutoPortal.Pages
 
             if (_loginValidator.Save(_config, out string error))
             {
-                SuccessMessage.Message = "配置已保存";
-                SuccessMessage.IsOpen = true;
+                ShowSuccess("配置已保存");
             }
             else
             {
-                ErrorMessage.Message = $"保存失败: {error}";
-                ErrorMessage.IsOpen = true;
+                ShowError($"保存失败: {error}");
             }
         }
 
@@ -86,16 +81,43 @@ namespace AutoPortal.Pages
                 PasswordBox.Password = string.Empty;
                 PortalUrlTextBox.Text = "http://10.189.108.11/";
                 AutoLoginCheckBox.IsChecked = false;
-
-                SuccessMessage.Message = "配置已删除";
-                SuccessMessage.IsOpen = true;
-                ErrorMessage.IsOpen = false;
+                ShowSuccess("配置已删除");
+            }
+            else
+            {
+                ShowError("删除失败，请稍后重试");
             }
         }
 
         private void TestButton_Click(object sender, RoutedEventArgs e)
         {
             NavigationService.Instance.NavigateTo(PageType.Login);
+        }
+
+        private void HideMessages()
+        {
+            SuccessMessage.IsOpen = false;
+            SuccessMessage.Visibility = Visibility.Collapsed;
+            ErrorMessage.IsOpen = false;
+            ErrorMessage.Visibility = Visibility.Collapsed;
+        }
+
+        private void ShowSuccess(string message)
+        {
+            ErrorMessage.IsOpen = false;
+            ErrorMessage.Visibility = Visibility.Collapsed;
+            SuccessMessage.Message = message;
+            SuccessMessage.Visibility = Visibility.Visible;
+            SuccessMessage.IsOpen = true;
+        }
+
+        private void ShowError(string message)
+        {
+            SuccessMessage.IsOpen = false;
+            SuccessMessage.Visibility = Visibility.Collapsed;
+            ErrorMessage.Message = message;
+            ErrorMessage.Visibility = Visibility.Visible;
+            ErrorMessage.IsOpen = true;
         }
     }
 }

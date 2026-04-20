@@ -35,15 +35,11 @@ namespace AutoPortal.Pages
             ApplyTheme(selectedIndex);
         }
 
-        private void ApplyTheme(int themeIndex)
+        private static void ApplyTheme(int themeIndex)
         {
             try
             {
-                var window = App.MainWindow;
-                if (window == null) return;
-
-                var content = window.Content as FrameworkElement;
-                if (content == null) return;
+                if (App.MainWindow?.Content is not FrameworkElement content) return;
 
                 content.RequestedTheme = themeIndex switch
                 {
@@ -52,12 +48,13 @@ namespace AutoPortal.Pages
                     _ => ElementTheme.Default
                 };
             }
-            catch { }
+            catch
+            {
+            }
         }
 
         private void AutoStartCheckBox_Toggled(object sender, RoutedEventArgs e)
         {
-            if (AutoStartCheckBox == null) return;
             var settings = AppSettingsService.Instance.Settings;
             settings.EnableAutoLogin = AutoStartCheckBox.IsOn;
             AppSettingsService.Instance.SaveSettings();
@@ -65,7 +62,6 @@ namespace AutoPortal.Pages
 
         private void MinimizeToTrayCheckBox_Toggled(object sender, RoutedEventArgs e)
         {
-            if (MinimizeToTrayCheckBox == null) return;
             var settings = AppSettingsService.Instance.Settings;
             settings.StartMinimized = MinimizeToTrayCheckBox.IsOn;
             AppSettingsService.Instance.SaveSettings();
@@ -75,6 +71,7 @@ namespace AutoPortal.Pages
         {
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
             var cacheDir = System.IO.Path.Combine(appData, "AutoPortal", "Cache");
+
             try
             {
                 if (System.IO.Directory.Exists(cacheDir))
@@ -82,12 +79,14 @@ namespace AutoPortal.Pages
                     System.IO.Directory.Delete(cacheDir, true);
                 }
             }
-            catch { }
+            catch
+            {
+            }
 
             var dialog = new ContentDialog
             {
                 Title = "清理完成",
-                Content = "缓存已清理完成",
+                Content = "缓存已清理完成。",
                 CloseButtonText = "确定",
                 XamlRoot = XamlRoot
             };
@@ -106,32 +105,33 @@ namespace AutoPortal.Pages
             };
 
             var result = await confirmDialog.ShowAsync();
+            if (result != ContentDialogResult.Primary) return;
 
-            if (result == ContentDialogResult.Primary)
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var dir = System.IO.Path.Combine(appData, "AutoPortal");
+
+            try
             {
-                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                var dir = System.IO.Path.Combine(appData, "AutoPortal");
-                try
+                if (System.IO.Directory.Exists(dir))
                 {
-                    if (System.IO.Directory.Exists(dir))
-                    {
-                        System.IO.Directory.Delete(dir, true);
-                    }
-                    System.IO.Directory.CreateDirectory(dir);
+                    System.IO.Directory.Delete(dir, true);
                 }
-                catch { }
-
-                LoadSettings();
-
-                var successDialog = new ContentDialog
-                {
-                    Title = "重置完成",
-                    Content = "应用已重置，部分设置将在重启后生效",
-                    CloseButtonText = "确定",
-                    XamlRoot = XamlRoot
-                };
-                await successDialog.ShowAsync();
+                System.IO.Directory.CreateDirectory(dir);
             }
+            catch
+            {
+            }
+
+            LoadSettings();
+
+            var successDialog = new ContentDialog
+            {
+                Title = "重置完成",
+                Content = "应用已重置，部分设置将在重启后生效。",
+                CloseButtonText = "确定",
+                XamlRoot = XamlRoot
+            };
+            await successDialog.ShowAsync();
         }
     }
 }

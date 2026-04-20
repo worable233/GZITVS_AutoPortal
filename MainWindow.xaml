@@ -18,7 +18,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <muxc:TitleBar 
+        <muxc:TitleBar
             x:Name="TitleBar"
             Grid.Row="0"
             Title="AutoPortal">
@@ -27,7 +27,7 @@
             </muxc:TitleBar.IconSource>
         </muxc:TitleBar>
 
-        <muxc:NavigationView 
+        <muxc:NavigationView
             x:Name="NavigationView"
             Grid.Row="1"
             IsPaneToggleButtonVisible="True"
@@ -35,30 +35,24 @@
             IsSettingsVisible="False"
             PaneDisplayMode="Auto"
             IsPaneOpen="True"
-            OpenPaneLength="200"
+            OpenPaneLength="220"
             CompactPaneLength="48"
             SelectionChanged="NavigationView_SelectionChanged">
 
             <muxc:NavigationView.MenuItems>
-                <muxc:NavigationViewItem 
-                    Content="主页" 
-                    Tag="Home">
+                <muxc:NavigationViewItem Content="首页" Tag="Home">
                     <muxc:NavigationViewItem.Icon>
                         <muxc:FontIcon Glyph="&#xE80F;"/>
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
 
-                <muxc:NavigationViewItem 
-                    Content="登录" 
-                    Tag="Login">
+                <muxc:NavigationViewItem Content="登录" Tag="Login">
                     <muxc:NavigationViewItem.Icon>
                         <muxc:FontIcon Glyph="&#xE77B;"/>
                     </muxc:NavigationViewItem.Icon>
                 </muxc:NavigationViewItem>
 
-                <muxc:NavigationViewItem 
-                    Content="配置管理" 
-                    Tag="Config">
+                <muxc:NavigationViewItem Content="配置管理" Tag="Config">
                     <muxc:NavigationViewItem.Icon>
                         <muxc:FontIcon Glyph="&#xE8B7;"/>
                     </muxc:NavigationViewItem.Icon>
@@ -66,9 +60,7 @@
             </muxc:NavigationView.MenuItems>
 
             <muxc:NavigationView.FooterMenuItems>
-                <muxc:NavigationViewItem 
-                    Content="设置" 
-                    Tag="Settings">
+                <muxc:NavigationViewItem Content="设置" Tag="Settings">
                     <muxc:NavigationViewItem.Icon>
                         <muxc:FontIcon Glyph="&#xE713;"/>
                     </muxc:NavigationViewItem.Icon>
