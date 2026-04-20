@@ -3,6 +3,8 @@ using AutoPortal.Models;
 using AutoPortal.Services;
 using LiveChartsCore;
 using LiveChartsCore.SkiaSharpView;
+using LiveChartsCore.SkiaSharpView.Painting;
+using SkiaSharp;
 using Microsoft.Win32;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -30,7 +32,8 @@ namespace AutoPortal.Pages
 
         private readonly ObservableCollection<double> _uploadSeries = new();
         private readonly ObservableCollection<double> _downloadSeries = new();
-        private const int MaxPoints = 60;
+        private const int MaxPoints = 20;
+        private int _timerCounter = 0;
 
         public ISeries[] TrafficSeries { get; set; } = Array.Empty<ISeries>();
         public Axis[] XAxes { get; set; } = Array.Empty<Axis>();
@@ -46,6 +49,25 @@ namespace AutoPortal.Pages
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            // 设置 SkiaSharp 字体目录以支持中文
+            try
+            {
+                // 加载系统中文字体文件
+                var fontPath = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                    "Fonts",
+                    "msyh.ttc"); // 微软雅黑
+
+                if (System.IO.File.Exists(fontPath))
+                {
+                    // 预加载字体以确保全局可用
+                    var typeface = SKTypeface.FromFile(fontPath);
+                    var paint = new SKPaint { Typeface = typeface };
+                    paint.Dispose();
+                }
+            }
+            catch { }
+            
             UpdateDashboardLayout(ActualWidth);
             StartNetworkMonitor();
             await RefreshDashboardAsync(includeAutoFlow: true);
@@ -92,14 +114,69 @@ namespace AutoPortal.Pages
 
         private void InitTrafficChart()
         {
+            // 加载系统中文字体
+            var fontPath = System.IO.Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                "Fonts",
+                "msyh.ttc"); // 微软雅黑
+
+            SKTypeface? customFont = null;
+            if (System.IO.File.Exists(fontPath))
+            {
+                try
+                {
+                    customFont = SKTypeface.FromFile(fontPath);
+                }
+                catch { }
+            }
+
+            // 如果找不到微软雅黑，尝试找其他字体
+            if (customFont == null)
+            {
+                fontPath = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.Windows),
+                    "Fonts",
+                    "simhei.ttf"); // 黑体
+                if (System.IO.File.Exists(fontPath))
+                {
+                    try
+                    {
+                        customFont = SKTypeface.FromFile(fontPath);
+                    }
+                    catch { }
+                }
+            }
+
             TrafficSeries = new ISeries[]
             {
-                new LineSeries<double> { Values = _uploadSeries, Name = "上传", Fill = null },
-                new LineSeries<double> { Values = _downloadSeries, Name = "下载", Fill = null }
+                new LineSeries<double> 
+                { 
+                    Values = _uploadSeries, 
+                    Name = "上传 (KB/s)", 
+                    Fill = null,
+                    GeometrySize = 0
+                },
+                new LineSeries<double> 
+                { 
+                    Values = _downloadSeries, 
+                    Name = "下载 (KB/s)", 
+                    Fill = null,
+                    GeometrySize = 0
+                }
             };
 
             XAxes = new Axis[] { new Axis { IsVisible = false } };
-            YAxes = new Axis[] { new Axis { MinLimit = 0 } };
+            
+            // 配置 Y 轴标签字体
+            var yAxis = new Axis { MinLimit = 0 };
+            if (customFont != null)
+            {
+                // 使用自定义字体渲染 Y 轴标签
+                var labelPaint = new SolidColorPaint { Color = new SKColor(0, 0, 0, 255) };
+                yAxis.LabelsPaint = labelPaint;
+            }
+            YAxes = new Axis[] { yAxis };
+            
             DataContext = this;
         }
 
@@ -139,6 +216,14 @@ namespace AutoPortal.Pages
                 _lastUploadBytes = upload;
                 _lastDownloadBytes = download;
                 _lastNetSampleTime = now;
+
+                // 每 3 秒更新一次图表数据，使显示更清晰
+                _timerCounter++;
+                if (_timerCounter < 3)
+                {
+                    return;
+                }
+                _timerCounter = 0;
 
                 App.MainWindow?.DispatcherQueue.TryEnqueue(() =>
                 {
@@ -207,7 +292,7 @@ namespace AutoPortal.Pages
             {
                 using var ping = new Ping();
                 var reply = await ping.SendPingAsync(host, 2500);
-                textBlock.Text = reply.Status == IPStatus.Success ? $"{reply.RoundtripTime} ms" : "超时";
+                textBlock.Text = reply.Status == IPStatus.Success ? $"{Math.Max(1, reply.RoundtripTime)} ms" : "超时";
             }
             catch
             {
@@ -281,8 +366,7 @@ namespace AutoPortal.Pages
 
         private static string GetAppVersion()
         {
-            var ver = typeof(App).Assembly.GetName().Version;
-            return ver?.ToString() ?? "-";
+            return AppVersionService.Version;
         }
 
         private async void LoginButton_Click(object sender, RoutedEventArgs e)

@@ -4,18 +4,25 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:services="using:AutoPortal.Services"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Padding="20">
-            <StackPanel MaxWidth="760" Spacing="16">
-                <StackPanel Spacing="4">
-                    <TextBlock Text="设置" Style="{StaticResource TitleTextBlockStyle}"/>
-                    <TextBlock Text="应用外观与行为设置" Style="{StaticResource CaptionTextBlockStyle}"/>
-                </StackPanel>
+    <Grid Padding="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
 
+        <StackPanel Grid.Row="0" Margin="0,0,0,18" Spacing="4">
+            <TextBlock Text="设置" Style="{StaticResource TitleTextBlockStyle}"/>
+            <TextBlock Text="应用外观与行为设置" Style="{StaticResource CaptionTextBlockStyle}"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1">
+            <StackPanel Spacing="16">
                 <Border
+                    HorizontalAlignment="Stretch"
                     Padding="16"
                     CornerRadius="10"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
@@ -79,14 +86,14 @@
                     BorderThickness="1">
                     <StackPanel Spacing="8">
                         <TextBlock Text="关于" Style="{StaticResource BaseTextBlockStyle}"/>
-                        <TextBlock Text="AutoPortal v1.0.2" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBlock Text="校园网自动登录助手" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
+                        <TextBlock Text="AutoPortal" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                        <TextBlock Text="{x:Bind services:AppVersionService.Version, Mode=OneWay}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
                         <HyperlinkButton
                             Content="检查更新"
                             NavigateUri="https://github.com/worable233/GZITVS_AutoPortal/releases"/>
                     </StackPanel>
                 </Border>
             </StackPanel>
-        </Grid>
-    </ScrollViewer>
+        </ScrollViewer>
+    </Grid>
 </Page>

@@ -1,12 +1,16 @@
+using AutoPortal.Helpers;
 using AutoPortal.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
+using System.IO;
 
 namespace AutoPortal.Pages
 {
     public sealed partial class SettingsPage : Page
     {
+        private readonly LoginValidator _loginValidator = new();
+
         public SettingsPage()
         {
             InitializeComponent();
@@ -16,6 +20,7 @@ namespace AutoPortal.Pages
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
             LoadSettings();
+            LoadVersionInfo();
         }
 
         private void LoadSettings()
@@ -24,6 +29,11 @@ namespace AutoPortal.Pages
             ThemeComboBox.SelectedIndex = settings.Theme;
             AutoStartCheckBox.IsOn = settings.EnableAutoLogin;
             MinimizeToTrayCheckBox.IsOn = settings.StartMinimized;
+        }
+
+        private void LoadVersionInfo()
+        {
+            // 版本号已在 XAML 中通过 x:Bind 绑定
         }
 
         private void ThemeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -69,24 +79,62 @@ namespace AutoPortal.Pages
 
         private async void ClearCacheButton_Click(object sender, RoutedEventArgs e)
         {
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var cacheDir = System.IO.Path.Combine(appData, "AutoPortal", "Cache");
+            var confirmDialog = new ContentDialog
+            {
+                Title = "确认清理缓存",
+                Content = "这将清理所有临时文件和缓存数据，但不会删除账号配置。确定要继续吗？",
+                PrimaryButtonText = "确定",
+                CloseButtonText = "取消",
+                XamlRoot = XamlRoot
+            };
+
+            var result = await confirmDialog.ShowAsync();
+            if (result != ContentDialogResult.Primary) return;
+
+            int clearedCount = 0;
+            var message = "";
 
             try
             {
-                if (System.IO.Directory.Exists(cacheDir))
+                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                
+                var cacheDirs = new[]
                 {
-                    System.IO.Directory.Delete(cacheDir, true);
+                    Path.Combine(appData, "AutoPortal", "Cache"),
+                    Path.Combine(appData, "AutoPortal", "Temp"),
+                    Path.Combine(localAppData, "AutoPortal", "Cache"),
+                    Path.Combine(localAppData, "Packages", "87d9a1db-52e8-4421-90dd-88716f64d8a9", "TempState"),
+                    Path.Combine(Path.GetTempPath(), "AutoPortal")
+                };
+
+                foreach (var cacheDir in cacheDirs)
+                {
+                    if (Directory.Exists(cacheDir))
+                    {
+                        Directory.Delete(cacheDir, true);
+                        clearedCount++;
+                    }
                 }
+
+                var logFile = Path.Combine(appData, "AutoPortal", "app.log");
+                if (File.Exists(logFile))
+                {
+                    File.Delete(logFile);
+                    clearedCount++;
+                }
+
+                message = $"已清理 {clearedCount} 个缓存项。";
             }
-            catch
+            catch (Exception ex)
             {
+                message = $"清理过程中出现错误：{ex.Message}";
             }
 
             var dialog = new ContentDialog
             {
                 Title = "清理完成",
-                Content = "缓存已清理完成。",
+                Content = message,
                 CloseButtonText = "确定",
                 XamlRoot = XamlRoot
             };
@@ -98,7 +146,7 @@ namespace AutoPortal.Pages
             var confirmDialog = new ContentDialog
             {
                 Title = "确认重置",
-                Content = "这将删除所有配置和数据，确定要继续吗？",
+                Content = "这将删除所有配置和数据，包括：\n\n• 账号配置（学号、密码）\n• 应用设置（主题、自启动等）\n• 所有缓存文件\n\n确定要继续吗？此操作不可恢复！",
                 PrimaryButtonText = "确定",
                 CloseButtonText = "取消",
                 XamlRoot = XamlRoot
@@ -107,31 +155,105 @@ namespace AutoPortal.Pages
             var result = await confirmDialog.ShowAsync();
             if (result != ContentDialogResult.Primary) return;
 
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            var dir = System.IO.Path.Combine(appData, "AutoPortal");
+            var secondConfirm = new ContentDialog
+            {
+                Title = "再次确认",
+                Content = "确定要重置应用吗？所有数据将被永久删除。",
+                PrimaryButtonText = "确定重置",
+                CloseButtonText = "取消",
+                XamlRoot = XamlRoot
+            };
+
+            var secondResult = await secondConfirm.ShowAsync();
+            if (secondResult != ContentDialogResult.Primary) return;
 
             try
             {
-                if (System.IO.Directory.Exists(dir))
+                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                var appDir = Path.Combine(appData, "AutoPortal");
+                var localAppDir = Path.Combine(localAppData, "AutoPortal");
+
+                _loginValidator.Delete();
+
+                var dirsToDelete = new[] { appDir, localAppDir };
+                foreach (var dir in dirsToDelete)
                 {
-                    System.IO.Directory.Delete(dir, true);
+                    if (Directory.Exists(dir))
+                    {
+                        Directory.Delete(dir, true);
+                    }
                 }
-                System.IO.Directory.CreateDirectory(dir);
+
+                AppSettingsService.Instance.Reset();
+
+                var restartDialog = new ContentDialog
+                {
+                    Title = "重置完成",
+                    Content = "应用已重置到初始状态。是否需要立即重启应用？",
+                    PrimaryButtonText = "重启应用",
+                    CloseButtonText = "稍后重启",
+                    XamlRoot = XamlRoot
+                };
+
+                var restartResult = await restartDialog.ShowAsync();
+                if (restartResult == ContentDialogResult.Primary)
+                {
+                    await RestartApplicationAsync();
+                }
+            }
+            catch (Exception ex)
+            {
+                var errorDialog = new ContentDialog
+                {
+                    Title = "重置失败",
+                    Content = $"重置过程中出现错误：{ex.Message}\n\n请手动关闭应用后删除以下目录：\n%APPDATA%\\AutoPortal\n%LOCALAPPDATA%\\AutoPortal",
+                    CloseButtonText = "确定",
+                    XamlRoot = XamlRoot
+                };
+                await errorDialog.ShowAsync();
+            }
+        }
+
+        private async System.Threading.Tasks.Task RestartApplicationAsync()
+        {
+            try
+            {
+                var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var restartScript = Path.Combine(Path.GetTempPath(), "restart_autportal.bat");
+                var appPath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
+
+                if (!string.IsNullOrEmpty(appPath))
+                {
+                    var scriptContent = $@"@echo off
+timeout /t 2 /nobreak >nul
+start """" ""{appPath}""
+del ""{restartScript}""
+";
+                    File.WriteAllText(restartScript, scriptContent);
+
+                    System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = "cmd.exe",
+                        Arguments = $"/c \"{restartScript}\"",
+                        CreateNoWindow = true,
+                        UseShellExecute = false
+                    });
+
+                    App.MainWindow?.Close();
+                }
             }
             catch
             {
+                var dialog = new ContentDialog
+                {
+                    Title = "提示",
+                    Content = "自动重启失败，请手动重新启动应用。",
+                    CloseButtonText = "确定",
+                    XamlRoot = XamlRoot
+                };
+                await dialog.ShowAsync();
             }
-
-            LoadSettings();
-
-            var successDialog = new ContentDialog
-            {
-                Title = "重置完成",
-                Content = "应用已重置，部分设置将在重启后生效。",
-                CloseButtonText = "确定",
-                XamlRoot = XamlRoot
-            };
-            await successDialog.ShowAsync();
         }
     }
 }

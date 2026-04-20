@@ -60,6 +60,22 @@ namespace AutoPortal.Services
 
             return new AppSettings();
         }
+
+        public void Reset()
+        {
+            try
+            {
+                if (File.Exists(_settingsFilePath))
+                {
+                    File.Delete(_settingsFilePath);
+                }
+                _settings = new AppSettings();
+            }
+            catch (Exception ex)
+            {
+                LoggerService.Instance.Error("重置设置失败", ex, "AppSettings");
+            }
+        }
     }
 
     public class AppSettings

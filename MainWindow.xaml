@@ -33,9 +33,9 @@
             IsPaneToggleButtonVisible="True"
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="False"
-            PaneDisplayMode="Auto"
-            IsPaneOpen="True"
-            OpenPaneLength="220"
+            PaneDisplayMode="Left"
+            IsPaneOpen="False"
+            OpenPaneLength="200"
             CompactPaneLength="48"
             SelectionChanged="NavigationView_SelectionChanged">
 

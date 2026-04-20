@@ -8,31 +8,34 @@
     Loaded="Page_Loaded"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <Grid Padding="20">
+    <Grid Padding="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,18" Spacing="4">
+            <TextBlock Text="登录" Style="{StaticResource TitleTextBlockStyle}"/>
+            <TextBlock
+                Text="请输入您的学号和密码"
+                Style="{StaticResource CaptionTextBlockStyle}"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1">
             <Border
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                MaxWidth="460"
-                Padding="22"
+                MinWidth="300"
+                MaxWidth="420"
+                Padding="20"
                 CornerRadius="10"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                 BorderThickness="1">
-                <StackPanel Spacing="16">
-                    <TextBlock
-                        Text="登录"
-                        Style="{StaticResource TitleTextBlockStyle}"
-                        HorizontalAlignment="Center"/>
-
-                    <TextBlock
-                        Text="请输入您的学号和密码"
-                        Style="{StaticResource CaptionTextBlockStyle}"
-                        HorizontalAlignment="Center"
-                        Margin="0,0,0,8"/>
-
+                <StackPanel Spacing="16" HorizontalAlignment="Stretch">
                     <TextBox
                         x:Name="UsernameTextBox"
+                        HorizontalAlignment="Stretch"
                         Header="学号"
                         PlaceholderText="请输入您的学号"
                         InputScope="Digits"
@@ -40,6 +43,7 @@
 
                     <PasswordBox
                         x:Name="PasswordBox"
+                        HorizontalAlignment="Stretch"
                         Header="密码"
                         PlaceholderText="请输入您的密码"
                         PasswordRevealMode="Peek"/>
@@ -73,6 +77,6 @@
                         Click="SaveConfigButton_Click"/>
                 </StackPanel>
             </Border>
-        </Grid>
-    </ScrollViewer>
+        </ScrollViewer>
+    </Grid>
 </Page>

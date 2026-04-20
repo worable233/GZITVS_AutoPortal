@@ -5,6 +5,7 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>AutoPortal</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\Logo.ico</ApplicationIcon>
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <PublishProfile>win-$(Platform).pubxml</PublishProfile>
@@ -42,7 +43,17 @@
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
     <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+    <TrimMode>Link</TrimMode>
+    <TrimmerDefaultAction>Link</TrimmerDefaultAction>
+    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
+    <IlcOptimizationPreference>Size</IlcOptimizationPreference>
+    <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
+    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
   </PropertyGroup>
+
+  <ItemGroup>
+    <TrimmerRootDescriptor Include="Trim.xml" />
+  </ItemGroup>
 
   <Target Name="CopyNativeDllsToOutput" AfterTargets="Build">
     <Copy SourceFiles="Login\x64\Release\Login.dll" DestinationFolder="$(TargetDir)" Condition="Exists('Login\x64\Release\Login.dll')" />

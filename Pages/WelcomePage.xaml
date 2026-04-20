@@ -7,7 +7,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Padding="20">
+    <Grid Padding="12">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -30,15 +30,18 @@
         </StackPanel>
 
         <Border
+            x:Name="ContentBorder"
             Grid.Row="1"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
-            MaxWidth="460"
-            Padding="20"
+            MinWidth="320"
+            MaxWidth="480"
+            Padding="24"
             CornerRadius="10"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-            BorderThickness="1">
+            BorderThickness="1"
+            Visibility="Visible">
             <StackPanel
                 x:Name="StepContent"
                 Spacing="14"

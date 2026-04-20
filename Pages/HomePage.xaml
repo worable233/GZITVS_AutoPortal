@@ -8,7 +8,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Padding="20" SizeChanged="RootGrid_SizeChanged">
+    <Grid Padding="12" SizeChanged="RootGrid_SizeChanged">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -46,7 +46,10 @@
                         BorderThickness="1">
                         <StackPanel Spacing="8">
                             <TextBlock Text="流量统计" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                            <lvc:CartesianChart Height="140" Series="{x:Bind TrafficSeries}"/>
+                            <lvc:CartesianChart 
+                                Height="140" 
+                                Series="{x:Bind TrafficSeries}"
+                                FontFamily="Microsoft YaHei"/>
 
                             <Grid ColumnSpacing="12" RowSpacing="4">
                                 <Grid.RowDefinitions>

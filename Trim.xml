@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<linker>
+  <!-- 保留 WinUI 3 和 Windows App SDK 所需的类型 -->
+  <assembly fullname="Microsoft.WindowsAppSDK">
+    <type fullname="*" preserve="all" />
+  </assembly>
+  
+  <assembly fullname="Microsoft.UI.Xaml">
+    <type fullname="*" preserve="all" />
+  </assembly>
+  
+  <assembly fullname="WinRT.Runtime">
+    <type fullname="*" preserve="all" />
+  </assembly>
+  
+  <!-- 保留 LiveChartsCore -->
+  <assembly fullname="LiveChartsCore">
+    <type fullname="*" preserve="all" />
+  </assembly>
+  
+  <assembly fullname="LiveChartsCore.SkiaSharpView">
+    <type fullname="*" preserve="all" />
+  </assembly>
+  
+  <assembly fullname="SkiaSharp">
+    <type fullname="*" preserve="all" />
+  </assembly>
+  
+  <!-- 保留 System.Text.Json -->
+  <assembly fullname="System.Text.Json">
+    <type fullname="*" preserve="all" />
+  </assembly>
+  
+  <!-- 保留应用程序的所有类型 -->
+  <assembly fullname="AutoPortal">
+    <type fullname="*" preserve="all" />
+  </assembly>
+</linker>

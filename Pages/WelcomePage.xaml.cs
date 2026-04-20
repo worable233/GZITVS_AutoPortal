@@ -39,18 +39,21 @@ namespace AutoPortal.Pages
                     StepDescription.Text = "自动登录校园网门户系统\n让网络连接更省心";
                     NextButton.Content = "开始配置";
                     InputPanel.Visibility = Visibility.Collapsed;
+                    ContentBorder.Visibility = Visibility.Collapsed;
                     break;
                 case 1:
                     StepTitle.Text = "配置账号信息";
                     StepDescription.Text = "请输入您的学号和密码";
                     NextButton.Content = "下一步";
                     InputPanel.Visibility = Visibility.Visible;
+                    ContentBorder.Visibility = Visibility.Visible;
                     break;
                 case 2:
                     StepTitle.Text = "配置完成";
                     StepDescription.Text = "配置已保存，点击按钮进入首页";
                     NextButton.Content = "开始使用";
                     InputPanel.Visibility = Visibility.Collapsed;
+                    ContentBorder.Visibility = Visibility.Collapsed;
                     break;
             }
 
