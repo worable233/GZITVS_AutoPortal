@@ -12,8 +12,7 @@
     <Nullable>enable</Nullable>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <WindowsPackageType>None</WindowsPackageType>
-    <SelfContained>true</SelfContained>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <SelfContained>false</SelfContained>
     <Version>1.0.3</Version>
     <AssemblyVersion>1.0.3.0</AssemblyVersion>
     <FileVersion>1.0.3.0</FileVersion>
@@ -66,23 +65,8 @@
     <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
-    <TrimMode>Link</TrimMode>
-    <TrimmerDefaultAction>Link</TrimmerDefaultAction>
-    <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
-    <IlcOptimizationPreference>Size</IlcOptimizationPreference>
-    <IlcFoldIdenticalMethodBodies>true</IlcFoldIdenticalMethodBodies>
-    <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
-    
-    <!-- 优化运行时内存 -->
-    <ServerGarbageCollection>true</ServerGarbageCollection>
-    <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
-    <RetainVMGarbageCollection>false</RetainVMGarbageCollection>
+    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
   </PropertyGroup>
-
-  <ItemGroup>
-    <TrimmerRootDescriptor Include="Trim.xml" />
-  </ItemGroup>
 
   <Target Name="CopyNativeDllsToOutput" AfterTargets="Build">
     <Copy SourceFiles="Login\x64\Release\Login.dll" DestinationFolder="$(TargetDir)" Condition="Exists('Login\x64\Release\Login.dll')" />
