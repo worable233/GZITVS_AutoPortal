@@ -1,0 +1,392 @@
+<Page
+    x:Class="AutoPortal.Pages.NavigationPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- 顶部标题栏 -->
+        <Border Grid.Row="0" Padding="24,20,24,16">
+            <StackPanel Spacing="8">
+                <TextBlock 
+                    Text="导航" 
+                    Style="{StaticResource TitleLargeTextBlockStyle}"
+                    FontWeight="Bold"/>
+                <TextBlock 
+                    Text="快速访问常用资源与内网系统" 
+                    Style="{StaticResource BodyStrongTextBlockStyle}"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- 内容区域 -->
+        <ScrollViewer Grid.Row="1" Padding="20">
+            <StackPanel Spacing="20">
+                <!-- 常用网站 - 大卡片横向布局 -->
+                <Border
+                    Padding="24"
+                    CornerRadius="16"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                    <StackPanel Spacing="20">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <StackPanel VerticalAlignment="Center" Spacing="4">
+                                <TextBlock 
+                                    Text="常用网站" 
+                                    Style="{StaticResource BodyStrongTextBlockStyle}" 
+                                    FontSize="18"/>
+                                <TextBlock 
+                                    Text="学习平台与校园服务" 
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        
+                        <Grid ColumnSpacing="16" RowSpacing="16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <!-- 智慧职教 -->
+                            <HyperlinkButton 
+                                Grid.Column="0"
+                                NavigateUri="https://zjy2.icve.com.cn/"
+                                Padding="20,16"
+                                HorizontalAlignment="Stretch"
+                                Background="{ThemeResource SubtleFillColorTertiaryBrush}"
+                                CornerRadius="12">
+                                <StackPanel>
+                                    <TextBlock 
+                                        Text="智慧职教" 
+                                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                                        FontSize="15"/>
+                                    <TextBlock 
+                                        Text="职业教育云平台" 
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        FontSize="12"/>
+                                </StackPanel>
+                            </HyperlinkButton>
+                            
+                            <!-- 学习通 -->
+                            <HyperlinkButton 
+                                Grid.Column="1"
+                                NavigateUri="https://www.chaoxing.com/"
+                                Padding="20,16"
+                                HorizontalAlignment="Stretch"
+                                Background="{ThemeResource SubtleFillColorTertiaryBrush}"
+                                CornerRadius="12">
+                                <StackPanel>
+                                    <TextBlock 
+                                        Text="学习通" 
+                                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                                        FontSize="15"/>
+                                    <TextBlock 
+                                        Text="移动学习平台" 
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        FontSize="12"/>
+                                </StackPanel>
+                            </HyperlinkButton>
+                            
+                            <!-- 智慧校园 -->
+                            <HyperlinkButton 
+                                Grid.Column="2"
+                                NavigateUri="https://zhxy.gzievs.com.cn/"
+                                Padding="20,16"
+                                HorizontalAlignment="Stretch"
+                                Background="{ThemeResource SubtleFillColorTertiaryBrush}"
+                                CornerRadius="12">
+                                <StackPanel>
+                                    <TextBlock 
+                                        Text="智慧校园" 
+                                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                                        FontSize="15"/>
+                                    <TextBlock 
+                                        Text="校园综合服务平台" 
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        FontSize="12"/>
+                                </StackPanel>
+                            </HyperlinkButton>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- 内网资源 - 分组卡片 -->
+                <Border
+                    Padding="24"
+                    CornerRadius="16"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1">
+                    <StackPanel Spacing="20">
+                        <StackPanel Orientation="Horizontal" Spacing="12">
+                            <StackPanel VerticalAlignment="Center" Spacing="4">
+                                <TextBlock 
+                                    Text="内网资源" 
+                                    Style="{StaticResource BodyStrongTextBlockStyle}" 
+                                    FontSize="18"/>
+                                <TextBlock 
+                                    Text="网络设备与管理系统" 
+                                    Style="{StaticResource CaptionTextBlockStyle}"
+                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- 网关设备 -->
+                        <StackPanel Spacing="12">
+                            <TextBlock 
+                                Text="网关设备" 
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                FontSize="14"
+                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <Border Grid.Column="0" 
+                                    Padding="16"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource SubtleFillColorTertiaryBrush}"
+                                    BorderThickness="0">
+                                    <HyperlinkButton NavigateUri="https://10.189.108.254/" 
+                                        Padding="0"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch">
+                                        <StackPanel>
+                                            <TextBlock Text="网关 (108.254)" 
+                                                Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                            <TextBlock Text="核心网络出口" 
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                FontSize="11"/>
+                                        </StackPanel>
+                                    </HyperlinkButton>
+                                </Border>
+                                
+                                <Border Grid.Column="1" 
+                                    Padding="16"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource SubtleFillColorTertiaryBrush}"
+                                    BorderThickness="0">
+                                    <HyperlinkButton NavigateUri="http://10.189.122.190/" 
+                                        Padding="0"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch">
+                                        <StackPanel>
+                                            <TextBlock Text="网关 (122.190)" 
+                                                Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                            <TextBlock Text="备用网络出口" 
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                FontSize="11"/>
+                                        </StackPanel>
+                                    </HyperlinkButton>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- 安全运维 -->
+                        <StackPanel Spacing="12">
+                            <TextBlock 
+                                Text="安全运维" 
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                FontSize="14"
+                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <Grid ColumnSpacing="12" RowSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                
+                                <Border Grid.Row="0" Grid.Column="0" 
+                                    Padding="14"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource SubtleFillColorTertiaryBrush}">
+                                    <HyperlinkButton NavigateUri="https://10.189.108.3/" 
+                                        Padding="0"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch">
+                                        <TextBlock Text="奇安信运维" 
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                            FontWeight="Bold"/>
+                                    </HyperlinkButton>
+                                </Border>
+                                
+                                <Border Grid.Row="0" Grid.Column="1" 
+                                    Padding="14"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource SubtleFillColorTertiaryBrush}">
+                                    <HyperlinkButton NavigateUri="https://10.189.108.5/" 
+                                        Padding="0"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch">
+                                        <TextBlock Text="SecFox 日志" 
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                            FontWeight="Bold"/>
+                                    </HyperlinkButton>
+                                </Border>
+                                
+                                <Border Grid.Row="0" Grid.Column="2" 
+                                    Padding="14"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource SubtleFillColorTertiaryBrush}">
+                                    <HyperlinkButton NavigateUri="https://10.189.108.7/" 
+                                        Padding="0"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch">
+                                        <TextBlock Text="SecVSS 扫描" 
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                            FontWeight="Bold"/>
+                                    </HyperlinkButton>
+                                </Border>
+                                
+                                <Border Grid.Row="1" Grid.Column="0" 
+                                    Padding="14"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource SubtleFillColorTertiaryBrush}">
+                                    <HyperlinkButton NavigateUri="https://10.189.108.8/" 
+                                        Padding="0"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch">
+                                        <TextBlock Text="运维 VPN" 
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                            FontWeight="Bold"/>
+                                    </HyperlinkButton>
+                                </Border>
+                                
+                                <Border Grid.Row="1" Grid.Column="1" 
+                                    Padding="14"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource SubtleFillColorTertiaryBrush}">
+                                    <HyperlinkButton NavigateUri="https://10.189.108.9/" 
+                                        Padding="0"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch">
+                                        <TextBlock Text="防火墙" 
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                            FontWeight="Bold"/>
+                                    </HyperlinkButton>
+                                </Border>
+                                
+                                <Border Grid.Row="1" Grid.Column="2" 
+                                    Padding="14"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource SubtleFillColorTertiaryBrush}">
+                                    <HyperlinkButton NavigateUri="https://10.189.108.20/" 
+                                        Padding="0"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch">
+                                        <TextBlock Text="一体机" 
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                            FontWeight="Bold"/>
+                                    </HyperlinkButton>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- 校园网管理 -->
+                        <StackPanel Spacing="12">
+                            <TextBlock 
+                                Text="校园网管理" 
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                FontSize="14"
+                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <Grid ColumnSpacing="12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <Border Grid.Column="0" 
+                                    Padding="16"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource SubtleFillColorTertiaryBrush}">
+                                    <HyperlinkButton NavigateUri="https://10.189.108.11/" 
+                                        Padding="0"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch">
+                                        <StackPanel>
+                                            <TextBlock Text="深信服后台" 
+                                                Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                            <TextBlock Text="网络管理控制台" 
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                FontSize="11"/>
+                                        </StackPanel>
+                                    </HyperlinkButton>
+                                </Border>
+                                
+                                <Border Grid.Column="1" 
+                                    Padding="16"
+                                    CornerRadius="12"
+                                    Background="{ThemeResource SubtleFillColorTertiaryBrush}">
+                                    <HyperlinkButton NavigateUri="http://10.189.108.11/" 
+                                        Padding="0"
+                                        HorizontalAlignment="Stretch"
+                                        HorizontalContentAlignment="Stretch">
+                                        <StackPanel>
+                                            <TextBlock Text="用户后台" 
+                                                Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                            <TextBlock Text="自助服务平台" 
+                                                Style="{StaticResource CaptionTextBlockStyle}"
+                                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                FontSize="11"/>
+                                        </StackPanel>
+                                    </HyperlinkButton>
+                                </Border>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- 产教融合 -->
+                        <StackPanel Spacing="12">
+                            <TextBlock 
+                                Text="产教融合" 
+                                Style="{StaticResource BodyStrongTextBlockStyle}"
+                                FontSize="14"
+                                Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <Border 
+                                Padding="16"
+                                CornerRadius="12"
+                                Background="{ThemeResource SubtleFillColorTertiaryBrush}">
+                                <HyperlinkButton NavigateUri="http://10.189.3.21/" 
+                                    Padding="0"
+                                    HorizontalAlignment="Stretch"
+                                    HorizontalContentAlignment="Stretch">
+                                    <StackPanel>
+                                        <TextBlock Text="ICT 虚拟仿真产教融合人才培养实践中心" 
+                                            Style="{StaticResource BodyStrongTextBlockStyle}"
+                                            TextWrapping="Wrap"/>
+                                        <TextBlock Text="虚拟仿真实训平台" 
+                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            FontSize="11"/>
+                                    </StackPanel>
+                                </HyperlinkButton>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</Page>

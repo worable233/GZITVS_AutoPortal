@@ -98,7 +98,6 @@ namespace AutoPortal.Pages
         private void UpdateDashboardLayout(double width)
         {
             bool wide = width >= 980;
-            DashboardCol1.Width = wide ? new GridLength(1, GridUnitType.Star) : new GridLength(0);
 
             if (wide)
             {
@@ -405,32 +404,32 @@ namespace AutoPortal.Pages
                 var json = await client.GetStringAsync("https://ipapi.co/json/");
                 var root = JsonDocument.Parse(json).RootElement;
 
-                CountryText.Text = $"国家: {root.GetProperty("country_name").GetString()}";
-                IPText.Text = $"IP 地址: {root.GetProperty("ip").GetString()}";
-                ISPText.Text = $"服务商: {root.GetProperty("org").GetString()}";
-                OrgText.Text = $"组织: {root.GetProperty("org").GetString()}";
-                LocationText.Text = $"位置: {root.GetProperty("city").GetString()}, {root.GetProperty("region").GetString()}";
-                ASNText.Text = $"自治域: {root.GetProperty("asn").GetString()}";
-                TimezoneText.Text = $"时区: {root.GetProperty("timezone").GetString()}";
+                CountryText.Text = root.GetProperty("country_name").GetString() ?? "-";
+                IPText.Text = root.GetProperty("ip").GetString() ?? "-";
+                ISPText.Text = root.GetProperty("org").GetString() ?? "-";
+                OrgText.Text = root.GetProperty("org").GetString() ?? "-";
+                LocationText.Text = $"{root.GetProperty("city").GetString() ?? "-"}, {root.GetProperty("region").GetString() ?? "-"}";
+                ASNText.Text = root.GetProperty("asn").GetString() ?? "-";
+                TimezoneText.Text = root.GetProperty("timezone").GetString() ?? "-";
             }
             catch
             {
-                CountryText.Text = "国家: -";
-                IPText.Text = "IP 地址: -";
-                ISPText.Text = "服务商: -";
-                OrgText.Text = "组织: -";
-                LocationText.Text = "位置: -";
-                ASNText.Text = "自治域: -";
-                TimezoneText.Text = "时区: -";
+                CountryText.Text = "-";
+                IPText.Text = "-";
+                ISPText.Text = "-";
+                OrgText.Text = "-";
+                LocationText.Text = "-";
+                ASNText.Text = "-";
+                TimezoneText.Text = "-";
             }
         }
 
         private void LoadSystemInfo()
         {
-            OSInfoText.Text = $"操作系统: {Environment.OSVersion}";
-            StartupText.Text = $"开机自启动: {(IsStartupEnabled() ? "是" : "否")}";
-            RunModeText.Text = $"运行模式: {(IsAdministrator() ? "管理员" : "普通")}";
-            AppVersionText.Text = $"程序版本: {GetAppVersion()}";
+            OSInfoText.Text = $"{Environment.OSVersion}";
+            StartupText.Text = $" {(IsStartupEnabled() ? "是" : "否")}";
+            RunModeText.Text = $" {(IsAdministrator() ? "管理员" : "普通")}";
+            AppVersionText.Text = $" {GetAppVersion()}";
         }
 
         private static bool IsStartupEnabled()

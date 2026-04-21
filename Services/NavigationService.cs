@@ -7,6 +7,7 @@ namespace AutoPortal.Services
         Welcome,
         Home,
         Login,
+        Navigation,
         Settings
     }
 
@@ -33,6 +34,7 @@ namespace AutoPortal.Services
                 PageType.Welcome => typeof(Pages.WelcomePage),
                 PageType.Home => typeof(Pages.HomePage),
                 PageType.Login => typeof(Pages.LoginPage),
+                PageType.Navigation => typeof(Pages.NavigationPage),
                 PageType.Settings => typeof(Pages.SettingsPage),
                 _ => typeof(Pages.HomePage)
             };
@@ -58,6 +60,7 @@ namespace AutoPortal.Services
             {
                 PageType.Home => "Home",
                 PageType.Login => "Login",
+                PageType.Navigation => "Navigation",
                 PageType.Settings => "Settings",
                 _ => null
             };

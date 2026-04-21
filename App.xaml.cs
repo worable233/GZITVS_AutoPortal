@@ -76,7 +76,27 @@ namespace AutoPortal
                 // 设置应用图标
                 SetAppIcon();
                 
-                MainWindow.Activate();
+                // 初始化系统托盘
+                TrayService.Instance.Initialize(MainWindow);
+                
+                // 检查是否应该启动时最小化到托盘
+                var settings = AppSettingsService.Instance.Settings;
+                if (settings.StartMinimized)
+                {
+                    MainWindow.Activate();
+                    
+                    var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(MainWindow);
+                    var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+                    var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+                    appWindow?.Hide();
+                }
+                else
+                {
+                    MainWindow.Activate();
+                }
+
+                // 监听窗口关闭事件
+                MainWindow.Closed += MainWindow_Closed;
             }
             catch (Exception ex)
             {
@@ -84,6 +104,11 @@ namespace AutoPortal
                 ShowFatalDialog("应用启动失败", ex);
                 throw;
             }
+        }
+
+        private void MainWindow_Closed(object sender, WindowEventArgs args)
+        {
+            TrayService.Instance.Dispose();
         }
 
         private void ApplySavedTheme()

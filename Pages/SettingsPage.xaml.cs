@@ -5,6 +5,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.IO;
+using Microsoft.Win32;
 
 namespace AutoPortal.Pages
 {
@@ -84,6 +85,35 @@ namespace AutoPortal.Pages
             var settings = AppSettingsService.Instance.Settings;
             settings.EnableAutoLogin = AutoStartCheckBox.IsOn;
             AppSettingsService.Instance.SaveSettings();
+            
+            UpdateStartupRegistry(AutoStartCheckBox.IsOn);
+        }
+
+        private static void UpdateStartupRegistry(bool enable)
+        {
+            try
+            {
+                var appPath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
+                if (string.IsNullOrEmpty(appPath)) return;
+
+                using var key = Registry.CurrentUser.OpenSubKey(
+                    @"Software\Microsoft\Windows\CurrentVersion\Run",
+                    writable: true);
+                
+                if (key == null) return;
+
+                if (enable)
+                {
+                    key.SetValue("AutoPortal", $"\"{appPath}\"");
+                }
+                else
+                {
+                    key.DeleteValue("AutoPortal", throwOnMissingValue: false);
+                }
+            }
+            catch
+            {
+            }
         }
 
         private void MinimizeToTrayCheckBox_Toggled(object sender, RoutedEventArgs e)
@@ -91,6 +121,8 @@ namespace AutoPortal.Pages
             var settings = AppSettingsService.Instance.Settings;
             settings.StartMinimized = MinimizeToTrayCheckBox.IsOn;
             AppSettingsService.Instance.SaveSettings();
+            
+            TrayService.Instance.UpdateSettings();
         }
 
         private async void ClearCacheButton_Click(object sender, RoutedEventArgs e)

@@ -8,138 +8,183 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Padding="12">
+    <Grid Padding="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Grid.Row="0" Margin="0,0,0,18" Spacing="4">
-            <TextBlock Text="设置" Style="{StaticResource TitleTextBlockStyle}"/>
-            <TextBlock Text="应用外观与行为设置" Style="{StaticResource CaptionTextBlockStyle}"/>
+        <!-- 标题区域 -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20" Spacing="6">
+            <TextBlock 
+                Text="设置" 
+                Style="{StaticResource TitleLargeTextBlockStyle}"
+                FontWeight="Bold"/>
+            <TextBlock 
+                Text="应用外观与行为设置" 
+                Style="{StaticResource BodyStrongTextBlockStyle}"
+                Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
         </StackPanel>
 
+        <!-- 内容区域 -->
         <ScrollViewer Grid.Row="1">
             <StackPanel Spacing="16">
                 <!-- 账号配置 -->
                 <Border
-                    HorizontalAlignment="Stretch"
-                    Padding="16"
-                    CornerRadius="10"
+                    Padding="20"
+                    CornerRadius="12"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="账号配置" Style="{StaticResource BaseTextBlockStyle}"/>
+                    <StackPanel Spacing="14">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE713;" FontSize="20" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="账号配置" Style="{StaticResource BodyStrongTextBlockStyle}" FontSize="16"/>
+                        </StackPanel>
                         
-                        <TextBox
-                            x:Name="UsernameTextBox"
-                            Header="学号"
-                            PlaceholderText="请输入您的学号"
-                            InputScope="Digits"
-                            IsSpellCheckEnabled="False"/>
+                        <StackPanel Spacing="12">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="学号" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBox
+                                    x:Name="UsernameTextBox"
+                                    PlaceholderText="请输入您的学号"
+                                    InputScope="Digits"
+                                    IsSpellCheckEnabled="False"/>
+                            </StackPanel>
 
-                        <PasswordBox
-                            x:Name="PasswordBox"
-                            Header="密码（可选）"
-                            PlaceholderText="留空则不保存密码"
-                            PasswordRevealMode="Peek"/>
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="密码（可选）" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <PasswordBox
+                                    x:Name="PasswordBox"
+                                    PlaceholderText="留空则不保存密码"
+                                    PasswordRevealMode="Peek"/>
+                            </StackPanel>
 
-                        <TextBox
-                            x:Name="PortalUrlTextBox"
-                            Header="Portal 地址"
-                            PlaceholderText="http://10.189.108.11/"
-                            Text="http://10.189.108.11/"/>
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="Portal 地址" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <TextBox
+                                    x:Name="PortalUrlTextBox"
+                                    PlaceholderText="http://10.189.108.11/"
+                                    Text="http://10.189.108.11/"/>
+                            </StackPanel>
 
-                        <ToggleSwitch
-                            x:Name="AutoLoginCheckBox"
-                            Header="启用自动登录"
-                            OffContent="关闭"
-                            OnContent="开启"/>
+                            <ToggleSwitch
+                                x:Name="AutoLoginCheckBox"
+                                Header="启用自动登录"
+                                OffContent="关闭"
+                                OnContent="开启"/>
 
-                        <StackPanel Spacing="8" Orientation="Horizontal">
                             <Button
                                 Content="保存配置"
                                 Style="{StaticResource AccentButtonStyle}"
+                                HorizontalAlignment="Stretch"
+                                Height="44"
                                 Click="SaveButton_Click"/>
+                            
+                            <InfoBar x:Name="ConfigSuccessMessage" Severity="Success" IsOpen="False" Visibility="Collapsed"/>
+                            <InfoBar x:Name="ConfigErrorMessage" Severity="Error" IsOpen="False" Visibility="Collapsed"/>
                         </StackPanel>
-                        
-                        <InfoBar x:Name="ConfigSuccessMessage" Severity="Success" IsOpen="False" Visibility="Collapsed"/>
-                        <InfoBar x:Name="ConfigErrorMessage" Severity="Error" IsOpen="False" Visibility="Collapsed"/>
                     </StackPanel>
                 </Border>
 
                 <!-- 行为设置 -->
                 <Border
-                    Padding="16"
-                    CornerRadius="10"
+                    Padding="20"
+                    CornerRadius="12"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1">
-                    <StackPanel Spacing="10">
-                        <TextBlock Text="行为" Style="{StaticResource BaseTextBlockStyle}"/>
-                        <ToggleSwitch
-                            x:Name="AutoStartCheckBox"
-                            Header="开机自启动"
-                            OffContent="关闭"
-                            OnContent="开启"
-                            Toggled="AutoStartCheckBox_Toggled"/>
-                        <ToggleSwitch
-                            x:Name="MinimizeToTrayCheckBox"
-                            Header="最小化到系统托盘"
-                            OffContent="关闭"
-                            OnContent="开启"
-                            Toggled="MinimizeToTrayCheckBox_Toggled"/>
+                    <StackPanel Spacing="14">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE76C;" FontSize="20" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="行为" Style="{StaticResource BodyStrongTextBlockStyle}" FontSize="16"/>
+                        </StackPanel>
+                        
+                        <StackPanel Spacing="12">
+                            <ToggleSwitch
+                                x:Name="AutoStartCheckBox"
+                                Header="开机自启动"
+                                OffContent="关闭"
+                                OnContent="开启"
+                                Toggled="AutoStartCheckBox_Toggled"/>
+                            <ToggleSwitch
+                                x:Name="MinimizeToTrayCheckBox"
+                                Header="最小化到系统托盘"
+                                OffContent="关闭"
+                                OnContent="开启"
+                                Toggled="MinimizeToTrayCheckBox_Toggled"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
                 <!-- 外观设置 -->
                 <Border
-                    Padding="16"
-                    CornerRadius="10"
+                    Padding="20"
+                    CornerRadius="12"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1">
-                    <StackPanel Spacing="12">
-                        <TextBlock Text="外观" Style="{StaticResource BaseTextBlockStyle}"/>
-                        <ComboBox
-                            x:Name="ThemeComboBox"
-                            Header="主题"
-                            SelectedIndex="0"
-                            SelectionChanged="ThemeComboBox_SelectionChanged">
-                            <x:String>跟随系统</x:String>
-                            <x:String>浅色</x:String>
-                            <x:String>深色</x:String>
-                        </ComboBox>
+                    <StackPanel Spacing="14">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE790;" FontSize="20" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="外观" Style="{StaticResource BodyStrongTextBlockStyle}" FontSize="16"/>
+                        </StackPanel>
+                        
+                        <StackPanel Spacing="8">
+                            <TextBlock Text="主题" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            <ComboBox
+                                x:Name="ThemeComboBox"
+                                SelectedIndex="0"
+                                SelectionChanged="ThemeComboBox_SelectionChanged"
+                                HorizontalAlignment="Stretch">
+                                <x:String>跟随系统</x:String>
+                                <x:String>浅色</x:String>
+                                <x:String>深色</x:String>
+                            </ComboBox>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
+                <!-- 数据管理 -->
                 <Border
-                    Padding="16"
-                    CornerRadius="10"
+                    Padding="20"
+                    CornerRadius="12"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1">
-                    <StackPanel Spacing="10">
-                        <TextBlock Text="数据管理" Style="{StaticResource BaseTextBlockStyle}"/>
-                        <Button Content="清理缓存" Click="ClearCacheButton_Click"/>
-                        <Button Content="重置应用" Click="ResetButton_Click"/>
+                    <StackPanel Spacing="14">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE7F8;" FontSize="20" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="数据管理" Style="{StaticResource BodyStrongTextBlockStyle}" FontSize="16"/>
+                        </StackPanel>
+                        
+                        <StackPanel Spacing="10">
+                            <Button Content="清理缓存" HorizontalAlignment="Stretch" Height="44" Click="ClearCacheButton_Click"/>
+                            <Button Content="重置应用" HorizontalAlignment="Stretch" Height="44" Click="ResetButton_Click"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
 
+                <!-- 关于 -->
                 <Border
-                    Padding="16"
-                    CornerRadius="10"
+                    Padding="20"
+                    CornerRadius="12"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="1">
-                    <StackPanel Spacing="8">
-                        <TextBlock Text="关于" Style="{StaticResource BaseTextBlockStyle}"/>
-                        <TextBlock Text="AutoPortal" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                        <TextBlock Text="{x:Bind services:AppVersionService.Version, Mode=OneWay}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
-                        <HyperlinkButton
-                            Content="检查更新"
-                            NavigateUri="https://github.com/worable233/GZITVS_AutoPortal/releases"/>
+                    <StackPanel Spacing="14">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE946;" FontSize="20" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="关于" Style="{StaticResource BodyStrongTextBlockStyle}" FontSize="16"/>
+                        </StackPanel>
+                        
+                        <StackPanel Spacing="6">
+                            <TextBlock Text="AutoPortal" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock Text="{x:Bind services:AppVersionService.Version, Mode=OneWay}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap"/>
+                            <HyperlinkButton
+                                Content="检查更新"
+                                NavigateUri="https://github.com/worable233/GZITVS_AutoPortal/releases"/>
+                        </StackPanel>
                     </StackPanel>
                 </Border>
             </StackPanel>
