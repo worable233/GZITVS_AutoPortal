@@ -138,8 +138,7 @@
                             Height="160" 
                             Series="{Binding TrafficSeries}"
                             XAxes="{Binding XAxes}"
-                            YAxes="{Binding YAxes}"
-                            FontFamily="Microsoft YaHei"/>
+                            YAxes="{Binding YAxes}"/>
 
                         <Grid ColumnSpacing="12" RowSpacing="8">
                             <Grid.RowDefinitions>
@@ -159,25 +158,23 @@
                             <TextBlock Grid.Row="2" Grid.Column="1" x:Name="ActiveConnectionsText" Text="0" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                         </Grid>
 
-                        <Border Padding="12" CornerRadius="8" Background="{ThemeResource SubtleFillColorTertiaryBrush}">
-                            <Grid ColumnSpacing="12" RowSpacing="6">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="Auto"/>
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Row="0" Grid.Column="0" Text="上传总量" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBlock Grid.Row="0" Grid.Column="1" x:Name="UploadTotalText" Text="0 MB" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <TextBlock Grid.Row="1" Grid.Column="0" Text="下载总量" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBlock Grid.Row="1" Grid.Column="1" x:Name="DownloadTotalText" Text="0 MB" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                                <TextBlock Grid.Row="2" Grid.Column="0" Text="内存占用" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
-                                <TextBlock Grid.Row="2" Grid.Column="1" x:Name="MemoryUsageText" Text="0 MB" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
-                            </Grid>
-                        </Border>
+                        <Grid ColumnSpacing="12" RowSpacing="8" Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" CornerRadius="8">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="上传总量" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" x:Name="UploadTotalText" Text="0 MB" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="下载总量" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" x:Name="DownloadTotalText" Text="0 MB" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="内存占用" Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" x:Name="MemoryUsageText" Text="0 MB" FontWeight="SemiBold" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                        </Grid>
                     </StackPanel>
                 </Border>
 

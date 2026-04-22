@@ -61,25 +61,6 @@ namespace AutoPortal.Pages
 
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
-            // 设置 SkiaSharp 字体目录以支持中文
-            try
-            {
-                // 加载系统中文字体文件
-                var fontPath = System.IO.Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-                    "Fonts",
-                    "msyh.ttc"); // 微软雅黑
-
-                if (System.IO.File.Exists(fontPath))
-                {
-                    // 预加载字体以确保全局可用
-                    var typeface = SKTypeface.FromFile(fontPath);
-                    var paint = new SKPaint { Typeface = typeface };
-                    paint.Dispose();
-                }
-            }
-            catch { }
-            
             UpdateDashboardLayout(ActualWidth);
             StartNetworkMonitor();
             await RefreshDashboardAsync(includeAutoFlow: true);
@@ -125,40 +106,6 @@ namespace AutoPortal.Pages
 
         private void InitTrafficChart()
         {
-            // 加载系统中文字体
-            var fontPath = System.IO.Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-                "Fonts",
-                "msyh.ttc"); // 微软雅黑
-
-            SKTypeface? customFont = null;
-            if (System.IO.File.Exists(fontPath))
-            {
-                try
-                {
-                    customFont = SKTypeface.FromFile(fontPath);
-                }
-                catch { }
-            }
-
-            // 如果找不到微软雅黑，尝试找其他字体
-            if (customFont == null)
-            {
-                fontPath = System.IO.Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.Windows),
-                    "Fonts",
-                    "simhei.ttf"); // 黑体
-                if (System.IO.File.Exists(fontPath))
-                {
-                    try
-                    {
-                        customFont = SKTypeface.FromFile(fontPath);
-                    }
-                    catch { }
-                }
-            }
-
-            // 优化：初始化图表系列，使用 ObservableCollection
             var uploadValues = new ObservableCollection<double>();
             var downloadValues = new ObservableCollection<double>();
             
@@ -181,25 +128,21 @@ namespace AutoPortal.Pages
             };
 
             _xAxes = new Axis[] { new Axis { IsVisible = false } };
-            
-            // 配置 Y 轴标签字体
-            var yAxis = new Axis { MinLimit = 0 };
-            if (customFont != null)
-            {
-                // 使用自定义字体渲染 Y 轴标签
-                var labelPaint = new SolidColorPaint { Color = new SKColor(0, 0, 0, 255) };
-                yAxis.LabelsPaint = labelPaint;
-            }
-            _yAxes = new Axis[] { yAxis };
+            _yAxes = new Axis[] { new Axis { MinLimit = 0 } };
             
             DataContext = this;
         }
+
+        private long _uploadTotalBytes;
+        private long _downloadTotalBytes;
 
         private void StartNetworkMonitor()
         {
             _lastNetSampleTime = DateTime.Now;
             _lastUploadBytes = GetNetworkBytes(upload: true);
             _lastDownloadBytes = GetNetworkBytes(upload: false);
+            _uploadTotalBytes = 0;
+            _downloadTotalBytes = 0;
 
             _netTimer?.Stop();
             _netTimer?.Dispose();
@@ -226,8 +169,14 @@ namespace AutoPortal.Pages
                 var upload = GetNetworkBytes(upload: true);
                 var download = GetNetworkBytes(upload: false);
                 var interval = Math.Max((now - _lastNetSampleTime).TotalSeconds, 0.001);
-                var upSpeed = (upload - _lastUploadBytes) / interval;
-                var downSpeed = (download - _lastDownloadBytes) / interval;
+                var upDelta = upload - _lastUploadBytes;
+                var downDelta = download - _lastDownloadBytes;
+                var upSpeed = upDelta / interval;
+                var downSpeed = downDelta / interval;
+                
+                if (upDelta > 0) _uploadTotalBytes += upDelta;
+                if (downDelta > 0) _downloadTotalBytes += downDelta;
+                
                 _lastUploadBytes = upload;
                 _lastDownloadBytes = download;
                 _lastNetSampleTime = now;
@@ -236,9 +185,10 @@ namespace AutoPortal.Pages
                 if (upSpeed < 0) upSpeed = 0;
                 if (downSpeed < 0) downSpeed = 0;
 
-                // 每 3 秒更新一次图表数据，使显示更清晰
+                // 根据设置更新图表数据
+                var updateInterval = AppSettingsService.Instance.Settings.ChartUpdateInterval;
                 _timerCounter++;
-                if (_timerCounter < 3)
+                if (_timerCounter < updateInterval)
                 {
                     return;
                 }
@@ -252,8 +202,8 @@ namespace AutoPortal.Pages
                 // 预计算所有文本
                 var upSpeedText = $"{upSpeed / 1024:F2} KB/s";
                 var downSpeedText = $"{downSpeed / 1024:F2} KB/s";
-                var uploadTotalText = $"{upload / 1024.0 / 1024.0:F2} MB";
-                var downloadTotalText = $"{download / 1024.0 / 1024.0:F2} MB";
+                var uploadTotalText = $"{_uploadTotalBytes / 1024.0 / 1024.0:F2} MB";
+                var downloadTotalText = $"{_downloadTotalBytes / 1024.0 / 1024.0:F2} MB";
                 var connectionsText = connections.ToString();
                 var memoryText = $"{memoryMB:F2} MB";
 

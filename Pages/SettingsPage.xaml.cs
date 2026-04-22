@@ -45,7 +45,16 @@ namespace AutoPortal.Pages
             var settings = AppSettingsService.Instance.Settings;
             ThemeComboBox.SelectedIndex = settings.Theme;
             AutoStartCheckBox.IsOn = settings.EnableAutoLogin;
-            MinimizeToTrayCheckBox.IsOn = settings.StartMinimized;
+            
+            var interval = settings.ChartUpdateInterval;
+            ChartUpdateIntervalComboBox.SelectedIndex = interval switch
+            {
+                1 => 0,
+                2 => 1,
+                3 => 2,
+                5 => 3,
+                _ => 2
+            };
         }
 
         private void LoadVersionInfo()
@@ -116,13 +125,21 @@ namespace AutoPortal.Pages
             }
         }
 
-        private void MinimizeToTrayCheckBox_Toggled(object sender, RoutedEventArgs e)
+        private void ChartUpdateIntervalComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            var settings = AppSettingsService.Instance.Settings;
-            settings.StartMinimized = MinimizeToTrayCheckBox.IsOn;
-            AppSettingsService.Instance.SaveSettings();
+            var selectedIndex = ChartUpdateIntervalComboBox.SelectedIndex;
+            var interval = selectedIndex switch
+            {
+                0 => 1,
+                1 => 2,
+                2 => 3,
+                3 => 5,
+                _ => 3
+            };
             
-            TrayService.Instance.UpdateSettings();
+            var settings = AppSettingsService.Instance.Settings;
+            settings.ChartUpdateInterval = interval;
+            AppSettingsService.Instance.SaveSettings();
         }
 
         private async void ClearCacheButton_Click(object sender, RoutedEventArgs e)

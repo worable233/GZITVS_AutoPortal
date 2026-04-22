@@ -107,12 +107,18 @@
                                 OffContent="关闭"
                                 OnContent="开启"
                                 Toggled="AutoStartCheckBox_Toggled"/>
-                            <ToggleSwitch
-                                x:Name="MinimizeToTrayCheckBox"
-                                Header="最小化到系统托盘"
-                                OffContent="关闭"
-                                OnContent="开启"
-                                Toggled="MinimizeToTrayCheckBox_Toggled"/>
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="图表更新间隔（秒）" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <ComboBox
+                                    x:Name="ChartUpdateIntervalComboBox"
+                                    SelectionChanged="ChartUpdateIntervalComboBox_SelectionChanged"
+                                    HorizontalAlignment="Stretch">
+                                    <x:String>1 秒</x:String>
+                                    <x:String>2 秒</x:String>
+                                    <x:String>3 秒</x:String>
+                                    <x:String>5 秒</x:String>
+                                </ComboBox>
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </Border>

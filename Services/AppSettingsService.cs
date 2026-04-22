@@ -95,13 +95,13 @@ namespace AutoPortal.Services
         [JsonPropertyName("checkNetworkTimeout")]
         public int CheckNetworkTimeout { get; set; } = 3;
 
-        [JsonPropertyName("startMinimized")]
-        public bool StartMinimized { get; set; }
-
         [JsonPropertyName("windowWidth")]
         public double WindowWidth { get; set; } = 1000;
 
         [JsonPropertyName("windowHeight")]
         public double WindowHeight { get; set; } = 700;
+
+        [JsonPropertyName("chartUpdateInterval")]
+        public int ChartUpdateInterval { get; set; } = 3;
     }
 }

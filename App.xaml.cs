@@ -19,13 +19,13 @@ using AutoPortal.Services;
 using AutoPortal.Helpers;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace AutoPortal
 {
     public partial class App : Application
     {
         public static Window? MainWindow { get; private set; }
-        private static System.Timers.Timer? _gcTimer;
         private static readonly string StartupLogPath = System.IO.Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
             "AutoPortal",
@@ -33,18 +33,12 @@ namespace AutoPortal
 
         public App()
         {
-            // 优化：启用低延迟垃圾回收，减少内存占用
-            System.Runtime.GCSettings.LatencyMode = System.Runtime.GCLatencyMode.SustainedLowLatency;
-            
             AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
             try
             {
                 NativeDllExtractor.Initialize();
                 InitializeComponent();
-                
-                // 启动定期 GC 定时器（每 30 秒触发一次）
-                StartGcTimer();
             }
             catch (Exception ex)
             {
@@ -52,18 +46,6 @@ namespace AutoPortal
                 ShowFatalDialog("应用初始化失败", ex);
                 throw;
             }
-        }
-        
-        private static void StartGcTimer()
-        {
-            _gcTimer = new System.Timers.Timer(30000); // 30 秒
-            _gcTimer.Elapsed += (s, e) =>
-            {
-                // 轻量级 GC，不阻塞主线程
-                GC.Collect(0, GCCollectionMode.Forced, blocking: false);
-                GC.Collect(1, GCCollectionMode.Forced, blocking: false);
-            };
-            _gcTimer.Start();
         }
 
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
@@ -75,25 +57,9 @@ namespace AutoPortal
                 
                 // 设置应用图标
                 SetAppIcon();
-                
-                // 初始化系统托盘
-                TrayService.Instance.Initialize(MainWindow);
-                
-                // 检查是否应该启动时最小化到托盘
-                var settings = AppSettingsService.Instance.Settings;
-                if (settings.StartMinimized)
-                {
-                    MainWindow.Activate();
-                    
-                    var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(MainWindow);
-                    var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
-                    var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
-                    appWindow?.Hide();
-                }
-                else
-                {
-                    MainWindow.Activate();
-                }
+
+                // 激活窗口
+                MainWindow.Activate();
 
                 // 监听窗口关闭事件
                 MainWindow.Closed += MainWindow_Closed;
@@ -108,7 +74,6 @@ namespace AutoPortal
 
         private void MainWindow_Closed(object sender, WindowEventArgs args)
         {
-            TrayService.Instance.Dispose();
         }
 
         private void ApplySavedTheme()
