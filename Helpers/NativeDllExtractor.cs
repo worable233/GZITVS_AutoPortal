@@ -34,18 +34,12 @@ namespace AutoPortal.Helpers
 
                 try
                 {
-                    var assembly = Assembly.GetExecutingAssembly();
-                    var exePath = Path.GetDirectoryName(assembly.Location);
+                    _extractPath = AppContext.BaseDirectory;
 
-                    if (string.IsNullOrEmpty(exePath))
+                    if (!string.IsNullOrEmpty(_extractPath))
                     {
-                        _initialized = true;
-                        return;
+                        SetDllDirectory(_extractPath);
                     }
-
-                    _extractPath = exePath;
-
-                    SetDllDirectory(_extractPath);
 
                     _initialized = true;
                 }

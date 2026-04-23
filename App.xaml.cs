@@ -54,12 +54,12 @@ namespace AutoPortal
             {
                 MainWindow = new MainWindow();
                 ApplySavedTheme();
-                
-                // 设置应用图标
-                SetAppIcon();
 
                 // 激活窗口
                 MainWindow.Activate();
+                
+                // 设置应用图标（必须在 Activate 之后）
+                SetAppIcon();
 
                 // 监听窗口关闭事件
                 MainWindow.Closed += MainWindow_Closed;
@@ -158,7 +158,7 @@ namespace AutoPortal
                     var iconPath = System.IO.Path.Combine(
                         AppDomain.CurrentDomain.BaseDirectory,
                         "Assets",
-                        "Logo.png");
+                        "app.ico");
                     
                     if (System.IO.File.Exists(iconPath))
                     {

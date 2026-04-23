@@ -140,7 +140,7 @@
                             XAxes="{Binding XAxes}"
                             YAxes="{Binding YAxes}"/>
 
-                        <Grid ColumnSpacing="12" RowSpacing="8">
+                        <Grid ColumnSpacing="12" RowSpacing="8" Padding="12" Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}" CornerRadius="8">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>

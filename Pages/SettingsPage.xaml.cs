@@ -102,7 +102,7 @@ namespace AutoPortal.Pages
         {
             try
             {
-                var appPath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
+                var appPath = Environment.ProcessPath;
                 if (string.IsNullOrEmpty(appPath)) return;
 
                 using var key = Registry.CurrentUser.OpenSubKey(
@@ -286,7 +286,7 @@ namespace AutoPortal.Pages
             {
                 var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
                 var restartScript = Path.Combine(Path.GetTempPath(), "restart_autportal.bat");
-                var appPath = System.Diagnostics.Process.GetCurrentProcess().MainModule?.FileName;
+                var appPath = Environment.ProcessPath;
 
                 if (!string.IsNullOrEmpty(appPath))
                 {

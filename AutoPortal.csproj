@@ -5,23 +5,39 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>AutoPortal</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <Platforms>x86;x64;ARM64</Platforms>
     <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
-    <PublishProfile>win-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <Nullable>enable</Nullable>
+    <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
-    <WindowsPackageType>None</WindowsPackageType>
+    <WindowsPackageType Condition="'$(Configuration)' == 'Release'">MSIX</WindowsPackageType>
+    <WindowsPackageType Condition="'$(Configuration)' != 'Release'">None</WindowsPackageType>
     <SelfContained>false</SelfContained>
-    <Version>1.0.3</Version>
-    <AssemblyVersion>1.0.3.0</AssemblyVersion>
-    <FileVersion>1.0.3.0</FileVersion>
+    <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
+    <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
+    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
+    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <Version>1.1.0</Version>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+    <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+    <EnableDefaultPageItems>true</EnableDefaultPageItems>
     
     <!-- 优化内存管理 -->
     <ServerGarbageCollection>true</ServerGarbageCollection>
     <ConcurrentGarbageCollection>true</ConcurrentGarbageCollection>
     <RetainVMGarbageCollection>false</RetainVMGarbageCollection>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="刚创建的示例项目\**\*.cs" />
+    <Page Remove="刚创建的示例项目\**\*.xaml" />
+    <Content Remove="刚创建的示例项目\**\*" />
+    <None Remove="刚创建的示例项目\**\*" />
+  </ItemGroup>
 
   <ItemGroup>
     <!-- 优化：使用链接方式复制资源，减少内存占用 -->
@@ -49,6 +65,9 @@
     <Content Include="Assets\Logo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Assets\app.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -65,7 +84,9 @@
     <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
+    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
+    <TrimMode>partial</TrimMode>
+    <IncludeAllContentForSelfExtract>false</IncludeAllContentForSelfExtract>
   </PropertyGroup>
 
   <Target Name="CopyNativeDllsToOutput" AfterTargets="Build">
@@ -97,28 +118,15 @@
     <Delete Files="$(PublishDir)\vc145.pdb" Condition="Exists('$(PublishDir)\vc145.pdb')" />
   </Target>
 
-  <Target Name="CreateZipPackage" AfterTargets="Publish">
+  <Target Name="CreateMsixPackage" AfterTargets="Publish" Condition="'$(Configuration)' == 'Release'">
     <PropertyGroup>
-      <Version>1.0.2</Version>
-      <PlatformName Condition="'$(RuntimeIdentifier)' == 'win-x64'">win-x64</PlatformName>
-      <PlatformName Condition="'$(RuntimeIdentifier)' == 'win-x86'">win-x86</PlatformName>
-      <PlatformName Condition="'$(RuntimeIdentifier)' == 'win-arm64'">win-arm64</PlatformName>
-      <ZipFileName>AutoPortal_v$(Version)_$(PlatformName).zip</ZipFileName>
-      <ZipOutputDir>$(MSBuildProjectDirectory)\bin\Release\net8.0-windows10.0.19041.0\$(PlatformName)</ZipOutputDir>
-      <ZipFilePath>$(ZipOutputDir)\$(ZipFileName)</ZipFilePath>
-      <TempZipDir>$(PublishDir)..\temp_zip</TempZipDir>
+      <AppxOutputDir>$(MSBuildProjectDirectory)\bin\Release\appx</AppxOutputDir>
+      <PublishDirAbs>$(MSBuildProjectDirectory)\$(PublishDir.TrimEnd('\'))</PublishDirAbs>
+      <ManifestPath>$(MSBuildProjectDirectory)\Package.appxmanifest</ManifestPath>
     </PropertyGroup>
 
-    <MakeDir Directories="$(TempZipDir)" />
-    
-    <ItemGroup>
-      <FilesToZip Include="$(PublishDir)\**\*" />
-    </ItemGroup>
+    <MakeDir Directories="$(AppxOutputDir)" />
 
-    <Copy SourceFiles="@(FilesToZip)" DestinationFiles="$(TempZipDir)\%(RecursiveDir)%(Filename)%(Extension)" />
-    
-    <ZipDirectory SourceDirectory="$(TempZipDir)" DestinationFile="$(ZipFilePath)" Overwrite="true" />
-    
-    <RemoveDir Directories="$(TempZipDir)" />
+    <Exec Command="powershell -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\CreateMsix.ps1&quot; -PublishDir &quot;$(PublishDirAbs)&quot; -OutputDir &quot;$(AppxOutputDir)&quot; -ManifestPath &quot;$(ManifestPath)&quot;" />
   </Target>
 </Project>

@@ -10,13 +10,12 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Security.Principal;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Timers;
+using Windows.System.Threading;
 
 namespace AutoPortal.Pages
 {
@@ -24,11 +23,13 @@ namespace AutoPortal.Pages
     {
         private readonly LoginValidator _loginValidator = new();
         private LoginConfig? _config;
-        private Timer? _netTimer;
+        private ThreadPoolTimer? _netTimer;
         private long _lastUploadBytes;
         private long _lastDownloadBytes;
         private DateTime _lastNetSampleTime;
         private bool _isRefreshing;
+        private bool _isTimerRunning;
+        private readonly object _timerLock = new();
 
         // 优化：使用固定大小的数组代替 ObservableCollection 减少内存分配
         private readonly double[] _uploadBuffer = new double[MaxPoints];
@@ -116,19 +117,21 @@ namespace AutoPortal.Pages
                     Values = uploadValues,
                     Name = "上传 (KB/s)", 
                     Fill = null,
-                    GeometrySize = 0
+                    GeometrySize = 0,
+                    Stroke = new SolidColorPaint(new SKColor(0x00, 0x78, 0xD4)) { StrokeThickness = 2 }
                 },
                 new LineSeries<double> 
                 { 
                     Values = downloadValues,
                     Name = "下载 (KB/s)", 
                     Fill = null,
-                    GeometrySize = 0
+                    GeometrySize = 0,
+                    Stroke = new SolidColorPaint(new SKColor(0x10, 0x7C, 0x10)) { StrokeThickness = 2 }
                 }
             };
 
             _xAxes = new Axis[] { new Axis { IsVisible = false } };
-            _yAxes = new Axis[] { new Axis { MinLimit = 0 } };
+            _yAxes = new Axis[] { new Axis { MinLimit = 0, IsVisible = false } };
             
             DataContext = this;
         }
@@ -144,25 +147,27 @@ namespace AutoPortal.Pages
             _uploadTotalBytes = 0;
             _downloadTotalBytes = 0;
 
-            _netTimer?.Stop();
-            _netTimer?.Dispose();
+            _netTimer?.Cancel();
 
-            _netTimer = new Timer(1000);
-            _netTimer.Elapsed += NetTimer_Elapsed;
-            _netTimer.Start();
+            _netTimer = ThreadPoolTimer.CreatePeriodicTimer(
+                (timer) => OnNetworkTimerTick(),
+                TimeSpan.FromSeconds(1));
         }
 
         private void StopNetworkMonitor()
         {
-            if (_netTimer == null) return;
-            _netTimer.Stop();
-            _netTimer.Elapsed -= NetTimer_Elapsed;
-            _netTimer.Dispose();
+            _netTimer?.Cancel();
             _netTimer = null;
         }
 
-        private void NetTimer_Elapsed(object? sender, ElapsedEventArgs e)
+        private void OnNetworkTimerTick()
         {
+            lock (_timerLock)
+            {
+                if (_isTimerRunning) return;
+                _isTimerRunning = true;
+            }
+
             try
             {
                 var now = DateTime.Now;
@@ -181,11 +186,9 @@ namespace AutoPortal.Pages
                 _lastDownloadBytes = download;
                 _lastNetSampleTime = now;
 
-                // 确保速度不为负数
                 if (upSpeed < 0) upSpeed = 0;
                 if (downSpeed < 0) downSpeed = 0;
 
-                // 根据设置更新图表数据
                 var updateInterval = AppSettingsService.Instance.Settings.ChartUpdateInterval;
                 _timerCounter++;
                 if (_timerCounter < updateInterval)
@@ -194,22 +197,16 @@ namespace AutoPortal.Pages
                 }
                 _timerCounter = 0;
 
-                // 缓存进程对象，避免每次创建
-                var currentProcess = Process.GetCurrentProcess();
-                var memoryMB = currentProcess.WorkingSet64 / 1024.0 / 1024.0;
-                var connections = GetActiveTcpConnections();
-
-                // 预计算所有文本
                 var upSpeedText = $"{upSpeed / 1024:F2} KB/s";
                 var downSpeedText = $"{downSpeed / 1024:F2} KB/s";
                 var uploadTotalText = $"{_uploadTotalBytes / 1024.0 / 1024.0:F2} MB";
                 var downloadTotalText = $"{_downloadTotalBytes / 1024.0 / 1024.0:F2} MB";
-                var connectionsText = connections.ToString();
-                var memoryText = $"{memoryMB:F2} MB";
 
-                App.MainWindow?.DispatcherQueue.TryEnqueue(() =>
+                var dispatcher = App.MainWindow?.DispatcherQueue;
+                if (dispatcher == null) return;
+
+                dispatcher.TryEnqueue(() =>
                 {
-                    // 更新图表数据
                     if (_trafficSeries != null && _trafficSeries.Length >= 2)
                     {
                         var uploadSeries = (LineSeries<double>)_trafficSeries[0];
@@ -217,7 +214,6 @@ namespace AutoPortal.Pages
                         
                         if (uploadSeries.Values != null && downloadSeries.Values != null)
                         {
-                            // 使用循环缓冲区
                             var upValue = Math.Round(upSpeed / 1024, 2);
                             var downValue = Math.Round(downSpeed / 1024, 2);
                             
@@ -226,7 +222,6 @@ namespace AutoPortal.Pages
                             _bufferIndex = (_bufferIndex + 1) % MaxPoints;
                             if (_pointCount < MaxPoints) _pointCount++;
                             
-                            // 直接设置 Values 属性，避免频繁 Clear/Add
                             uploadSeries.Values = GetUploadBufferArray();
                             downloadSeries.Values = GetDownloadBufferArray();
                         }
@@ -236,14 +231,18 @@ namespace AutoPortal.Pages
                     DownloadSpeedText.Text = downSpeedText;
                     UploadTotalText.Text = uploadTotalText;
                     DownloadTotalText.Text = downloadTotalText;
-                    ActiveConnectionsText.Text = connectionsText;
-                    MemoryUsageText.Text = memoryText;
                 });
             }
             catch (Exception ex)
             {
-                // 静默失败，不影响其他功能
                 System.Diagnostics.Debug.WriteLine($"Network monitor error: {ex.Message}");
+            }
+            finally
+            {
+                lock (_timerLock)
+                {
+                    _isTimerRunning = false;
+                }
             }
         }
 
@@ -319,7 +318,7 @@ namespace AutoPortal.Pages
             );
         }
 
-        private static async Task PingAndShowAsync(string host, TextBlock textBlock)
+        private async Task PingAndShowAsync(string host, TextBlock textBlock)
         {
             try
             {
@@ -346,32 +345,46 @@ namespace AutoPortal.Pages
             }
         }
 
+        private static readonly HttpClient _httpClient = new() { Timeout = TimeSpan.FromSeconds(8) };
+
         private async Task LoadIpInfoAsync()
         {
             try
             {
-                using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(6) };
-                var json = await client.GetStringAsync("https://ipapi.co/json/");
+                var json = await _httpClient.GetStringAsync("http://ip-api.com/json/?lang=zh-CN");
                 var root = JsonDocument.Parse(json).RootElement;
 
-                CountryText.Text = root.GetProperty("country_name").GetString() ?? "-";
-                IPText.Text = root.GetProperty("ip").GetString() ?? "-";
-                ISPText.Text = root.GetProperty("org").GetString() ?? "-";
-                OrgText.Text = root.GetProperty("org").GetString() ?? "-";
-                LocationText.Text = $"{root.GetProperty("city").GetString() ?? "-"}, {root.GetProperty("region").GetString() ?? "-"}";
-                ASNText.Text = root.GetProperty("asn").GetString() ?? "-";
-                TimezoneText.Text = root.GetProperty("timezone").GetString() ?? "-";
+                var status = root.GetProperty("status").GetString();
+                if (status == "success")
+                {
+                    CountryText.Text = root.GetProperty("country").GetString() ?? "-";
+                    IPText.Text = root.GetProperty("query").GetString() ?? "-";
+                    ISPText.Text = root.GetProperty("isp").GetString() ?? "-";
+                    OrgText.Text = root.GetProperty("org").GetString() ?? "-";
+                    LocationText.Text = $"{root.GetProperty("city").GetString() ?? "-"}, {root.GetProperty("regionName").GetString() ?? "-"}";
+                    ASNText.Text = $"AS{root.GetProperty("as").GetString() ?? "-"}";
+                    TimezoneText.Text = root.GetProperty("timezone").GetString() ?? "-";
+                }
+                else
+                {
+                    SetIpInfoError();
+                }
             }
             catch
             {
-                CountryText.Text = "-";
-                IPText.Text = "-";
-                ISPText.Text = "-";
-                OrgText.Text = "-";
-                LocationText.Text = "-";
-                ASNText.Text = "-";
-                TimezoneText.Text = "-";
+                SetIpInfoError();
             }
+        }
+
+        private void SetIpInfoError()
+        {
+            CountryText.Text = "-";
+            IPText.Text = "-";
+            ISPText.Text = "-";
+            OrgText.Text = "-";
+            LocationText.Text = "-";
+            ASNText.Text = "-";
+            TimezoneText.Text = "-";
         }
 
         private void LoadSystemInfo()
