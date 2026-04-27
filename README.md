@@ -169,22 +169,3 @@ AutoPortal/
 ## 许可证
 
 [Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](LICENSE)
-
-## 开发者
-
-- **Publisher**: worable
-- **GitHub**: [@worable](https://github.com/worable)
-
-## 更新日志
-
-### v1.1.0
-- ✨ 优化安装程序，添加中文语言支持
-- 🎨 更新应用图标
-- 🐛 修复窗口显示问题
-- 📝 完善文档
-
-### v1.0.0
-- 🎉 首次发布
-- ✅ 实现基本登录功能
-- ✅ 支持记住密码
-- ✅ 支持自动登录
