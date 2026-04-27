@@ -9,11 +9,11 @@
   IgnorableNamespaces="uap rescap systemai">
 
   <Identity
-    Name="87d9a1db-52e8-4421-90dd-88716f64d8a9"
+    Name="AutoPortal"
     Publisher="CN=worable"
     Version="1.1.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="87d9a1db-52e8-4421-90dd-88716f64d8a9" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="AutoPortal" PhonePublisherId="worable"/>
 
   <Properties>
     <DisplayName>AutoPortal</DisplayName>

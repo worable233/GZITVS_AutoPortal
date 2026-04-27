@@ -37,8 +37,32 @@ namespace AutoPortal
 
             try
             {
+                // 在初始化之前就记录日志
+                var preLog = new StringBuilder();
+                preLog.AppendLine("=== App Constructor Starting ===");
+                preLog.AppendLine($"Base Directory: {AppContext.BaseDirectory}");
+                preLog.AppendLine($"Application Path: {AppDomain.CurrentDomain.BaseDirectory}");
+                System.IO.File.AppendAllText(StartupLogPath, preLog.ToString(), Encoding.UTF8);
+
                 NativeDllExtractor.Initialize();
+                
+                // 预加载 LiveChartsCore 和 SkiaSharp，确保 Native DLL 被加载
+                try
+                {
+                    var liveChartsAssembly = System.Reflection.Assembly.Load("LiveChartsCore.SkiaSharpView.WinUI");
+                    var skiaSharpAssembly = System.Reflection.Assembly.Load("SkiaSharp");
+                    System.IO.File.AppendAllText(StartupLogPath, $"=== LiveChartsCore Loaded: {liveChartsAssembly.FullName} ===\n", Encoding.UTF8);
+                    System.IO.File.AppendAllText(StartupLogPath, $"=== SkiaSharp Loaded: {skiaSharpAssembly.FullName} ===\n", Encoding.UTF8);
+                }
+                catch (Exception preloadEx)
+                {
+                    System.IO.File.AppendAllText(StartupLogPath, $"=== LiveChartsCore/SkiaSharp Preload Failed: {preloadEx.Message} ===\n", Encoding.UTF8);
+                }
+                
                 InitializeComponent();
+                
+                // 记录初始化成功
+                System.IO.File.AppendAllText(StartupLogPath, "=== InitializeComponent Success ===\n", Encoding.UTF8);
             }
             catch (Exception ex)
             {
@@ -50,23 +74,45 @@ namespace AutoPortal
 
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
         {
+            var logPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AutoPortal", "startup.log");
             try
             {
+                System.IO.File.AppendAllText(logPath, "=== OnLaunched: Creating MainWindow ===\n", System.Text.Encoding.UTF8);
                 MainWindow = new MainWindow();
+                System.IO.File.AppendAllText(logPath, "=== OnLaunched: MainWindow created ===\n", System.Text.Encoding.UTF8);
                 ApplySavedTheme();
 
                 // 激活窗口
+                System.IO.File.AppendAllText(logPath, "=== OnLaunched: Calling Activate ===\n", System.Text.Encoding.UTF8);
                 MainWindow.Activate();
+                System.IO.File.AppendAllText(logPath, "=== OnLaunched: Activate called ===\n", System.Text.Encoding.UTF8);
                 
                 // 设置应用图标（必须在 Activate 之后）
                 SetAppIcon();
+                System.IO.File.AppendAllText(logPath, "=== OnLaunched: SetAppIcon called ===\n", System.Text.Encoding.UTF8);
 
                 // 监听窗口关闭事件
                 MainWindow.Closed += MainWindow_Closed;
+                System.IO.File.AppendAllText(logPath, "=== OnLaunched: Completed ===\n", System.Text.Encoding.UTF8);
             }
             catch (Exception ex)
             {
                 LogFatal("OnLaunched failed", ex);
+                
+                // 记录更详细的错误信息
+                var detailedError = new StringBuilder();
+                detailedError.AppendLine($"Exception Type: {ex.GetType().FullName}");
+                detailedError.AppendLine($"Message: {ex.Message}");
+                detailedError.AppendLine($"StackTrace: {ex.StackTrace}");
+                
+                if (ex.InnerException != null)
+                {
+                    detailedError.AppendLine($"\nInner Exception Type: {ex.InnerException.GetType().FullName}");
+                    detailedError.AppendLine($"Inner Message: {ex.InnerException.Message}");
+                    detailedError.AppendLine($"Inner StackTrace: {ex.InnerException.StackTrace}");
+                }
+                
+                LogFatal("Detailed Error", new Exception(detailedError.ToString()));
                 ShowFatalDialog("应用启动失败", ex);
                 throw;
             }

@@ -12,13 +12,9 @@
     <Nullable>enable</Nullable>
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsAppSDKSelfContained>false</WindowsAppSDKSelfContained>
-    <WindowsPackageType Condition="'$(Configuration)' == 'Release'">MSIX</WindowsPackageType>
-    <WindowsPackageType Condition="'$(Configuration)' != 'Release'">None</WindowsPackageType>
+    <WindowsPackageType>None</WindowsPackageType>
     <SelfContained>false</SelfContained>
-    <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
-    <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
-    <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
+    <GenerateAppxPackageOnBuild>false</GenerateAppxPackageOnBuild>
     <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
     <Version>1.1.0</Version>
     <AssemblyVersion>1.1.0.0</AssemblyVersion>
@@ -32,12 +28,6 @@
     <RetainVMGarbageCollection>false</RetainVMGarbageCollection>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="刚创建的示例项目\**\*.cs" />
-    <Page Remove="刚创建的示例项目\**\*.xaml" />
-    <Content Remove="刚创建的示例项目\**\*" />
-    <None Remove="刚创建的示例项目\**\*" />
-  </ItemGroup>
 
   <ItemGroup>
     <!-- 优化：使用链接方式复制资源，减少内存占用 -->
@@ -84,9 +74,7 @@
     <PublishReadyToRun Condition="'$(Configuration)' == 'Debug'">False</PublishReadyToRun>
     <PublishReadyToRun Condition="'$(Configuration)' != 'Debug'">True</PublishReadyToRun>
     <PublishTrimmed Condition="'$(Configuration)' == 'Debug'">False</PublishTrimmed>
-    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">True</PublishTrimmed>
-    <TrimMode>partial</TrimMode>
-    <IncludeAllContentForSelfExtract>false</IncludeAllContentForSelfExtract>
+    <PublishTrimmed Condition="'$(Configuration)' != 'Debug'">False</PublishTrimmed>
   </PropertyGroup>
 
   <Target Name="CopyNativeDllsToOutput" AfterTargets="Build">
@@ -113,20 +101,20 @@
     <Copy SourceFiles="Login\arm64\Release\zlib1.dll" DestinationFolder="$(PublishDir)" Condition="'$(RuntimeIdentifier)' == 'win-arm64' and Exists('Login\arm64\Release\zlib1.dll')" />
   </Target>
 
+  <Target Name="CopyResources" BeforeTargets="Publish">
+    <Copy SourceFiles="Resources\Styles.xaml" DestinationFolder="$(PublishDir)\Resources" Condition="Exists('Resources\Styles.xaml')" />
+  </Target>
+
+  <!-- 确保所有 XAML 文件都复制到发布目录 -->
+  <Target Name="CopyXamlFiles" BeforeTargets="Publish">
+    <ItemGroup>
+      <XamlFiles Include="**\*.xaml" Exclude="obj\**;bin\**" />
+    </ItemGroup>
+    <Copy SourceFiles="@(XamlFiles)" DestinationFiles="$(PublishDir)%(RecursiveDir)%(Filename)%(Extension)" SkipUnchangedFiles="true" />
+  </Target>
+
   <Target Name="CleanUnnecessaryFiles" AfterTargets="CopyNativeDlls">
     <Delete Files="$(PublishDir)\Login.pdb" Condition="Exists('$(PublishDir)\Login.pdb')" />
     <Delete Files="$(PublishDir)\vc145.pdb" Condition="Exists('$(PublishDir)\vc145.pdb')" />
-  </Target>
-
-  <Target Name="CreateMsixPackage" AfterTargets="Publish" Condition="'$(Configuration)' == 'Release'">
-    <PropertyGroup>
-      <AppxOutputDir>$(MSBuildProjectDirectory)\bin\Release\appx</AppxOutputDir>
-      <PublishDirAbs>$(MSBuildProjectDirectory)\$(PublishDir.TrimEnd('\'))</PublishDirAbs>
-      <ManifestPath>$(MSBuildProjectDirectory)\Package.appxmanifest</ManifestPath>
-    </PropertyGroup>
-
-    <MakeDir Directories="$(AppxOutputDir)" />
-
-    <Exec Command="powershell -ExecutionPolicy Bypass -File &quot;$(MSBuildProjectDirectory)\CreateMsix.ps1&quot; -PublishDir &quot;$(PublishDirAbs)&quot; -OutputDir &quot;$(AppxOutputDir)&quot; -ManifestPath &quot;$(ManifestPath)&quot;" />
   </Target>
 </Project>

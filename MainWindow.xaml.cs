@@ -12,21 +12,40 @@ namespace AutoPortal
 
         public MainWindow()
         {
-            InitializeComponent();
-            ExtendsContentIntoTitleBar = true;
-            SetTitleBar(TitleBar);
-
-            NavigationService.Instance.Initialize(ContentFrame, NavigationView);
-
-            var config = _loginValidator.Load(out string error);
-
-            if (config == null || string.IsNullOrEmpty(config.Username))
+            var logPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AutoPortal", "startup.log");
+            try
             {
-                NavigationService.Instance.NavigateTo(PageType.Welcome);
+                System.IO.File.AppendAllText(logPath, "=== MainWindow: Before InitializeComponent ===\n", System.Text.Encoding.UTF8);
+                InitializeComponent();
+                System.IO.File.AppendAllText(logPath, "=== MainWindow: After InitializeComponent ===\n", System.Text.Encoding.UTF8);
+                ExtendsContentIntoTitleBar = true;
+                SetTitleBar(TitleBar);
+
+                NavigationService.Instance.Initialize(ContentFrame, NavigationView);
+
+                var config = _loginValidator.Load(out string error);
+
+                if (config == null || string.IsNullOrEmpty(config.Username))
+                {
+                    NavigationService.Instance.NavigateTo(PageType.Welcome);
+                }
+                else
+                {
+                    NavigationService.Instance.NavigateTo(PageType.Home);
+                }
+                
+                System.IO.File.AppendAllText(logPath, "=== MainWindow: Constructor completed ===\n", System.Text.Encoding.UTF8);
+                
+                // 设置窗口尺寸，确保窗口能显示
+                this.AppWindow.Resize(new Windows.Graphics.SizeInt32(800, 600));
             }
-            else
+            catch (Exception ex)
             {
-                NavigationService.Instance.NavigateTo(PageType.Home);
+                System.IO.File.AppendAllText(
+                    logPath,
+                    $"=== MainWindow Constructor Failed: {ex.GetType().FullName} ===\nMessage: {ex.Message}\nStackTrace: {ex.StackTrace}\n",
+                    System.Text.Encoding.UTF8);
+                throw;
             }
         }
 
