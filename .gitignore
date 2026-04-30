@@ -104,3 +104,6 @@ Login/x64/Release/*.dll
 Login/x64/Debug/*.dll
 Login/x86/Release/*.dll
 Login/x86/Debug/*.dll
+
+# Agent
+AGENTS.md

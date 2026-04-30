@@ -5,8 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:services="using:AutoPortal.Services"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    mc:Ignorable="d">
 
     <Grid Padding="20">
         <Grid.RowDefinitions>
@@ -136,17 +135,46 @@
                             <TextBlock Text="外观" Style="{StaticResource BodyStrongTextBlockStyle}" FontSize="16"/>
                         </StackPanel>
                         
-                        <StackPanel Spacing="8">
-                            <TextBlock Text="主题" Style="{StaticResource BodyStrongTextBlockStyle}"/>
-                            <ComboBox
-                                x:Name="ThemeComboBox"
-                                SelectedIndex="0"
-                                SelectionChanged="ThemeComboBox_SelectionChanged"
-                                HorizontalAlignment="Stretch">
-                                <x:String>跟随系统</x:String>
-                                <x:String>浅色</x:String>
-                                <x:String>深色</x:String>
-                            </ComboBox>
+                        <StackPanel Spacing="12">
+                            <StackPanel Spacing="8">
+                                <TextBlock Text="主题" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                <ComboBox
+                                    x:Name="ThemeComboBox"
+                                    SelectedIndex="0"
+                                    SelectionChanged="ThemeComboBox_SelectionChanged"
+                                    HorizontalAlignment="Stretch">
+                                    <x:String>跟随系统</x:String>
+                                    <x:String>浅色</x:String>
+                                    <x:String>深色</x:String>
+                                </ComboBox>
+                            </StackPanel>
+
+                            <ToggleSwitch
+                                x:Name="MicaEffectCheckBox"
+                                Header="Mica 效果"
+                                OffContent="关闭"
+                                OnContent="开启"
+                                Toggled="MicaEffectCheckBox_Toggled"/>
+
+                            <StackPanel Spacing="8">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="Mica 透明度" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" x:Name="MicaOpacityTextBlock" Text="100%" Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                                </Grid>
+                                <Slider
+                                    x:Name="MicaOpacitySlider"
+                                    Minimum="0.1"
+                                    Maximum="1.0"
+                                    StepFrequency="0.05"
+                                    TickFrequency="0.05"
+                                    SnapsTo="Ticks"
+                                    ManipulationCompleted="MicaOpacitySlider_ManipulationCompleted"
+                                    Header=""/>
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
                 </Border>

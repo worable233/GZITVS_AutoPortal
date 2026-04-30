@@ -20,6 +20,7 @@ using AutoPortal.Helpers;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI;
 
 namespace AutoPortal
 {
@@ -93,6 +94,21 @@ namespace AutoPortal
 
                 // 监听窗口关闭事件
                 MainWindow.Closed += MainWindow_Closed;
+                
+                // 监听导航事件，在导航后更新页面背景
+                if (MainWindow is MainWindow mainWindow && mainWindow.Content is FrameworkElement rootElement)
+                {
+                    var contentFrame = FindChild<Frame>(rootElement, "ContentFrame");
+                    if (contentFrame != null)
+                    {
+                        contentFrame.Navigated += (s, e) => 
+                        {
+                            // 导航到任何页面时都更新背景
+                            SetPageBackgrounds(AppSettingsService.Instance.Settings.EnableMicaEffect);
+                        };
+                    }
+                }
+                
                 System.IO.File.AppendAllText(logPath, "=== OnLaunched: Completed ===\n", System.Text.Encoding.UTF8);
             }
             catch (Exception ex)
@@ -134,6 +150,88 @@ namespace AutoPortal
                     _ => ElementTheme.Default
                 };
             }
+            
+            // 应用云母效果设置
+            ApplyMicaEffect();
+        }
+        
+        private void ApplyMicaEffect()
+        {
+            try
+            {
+                if (MainWindow is not MainWindow window) return;
+                
+                var settings = AppSettingsService.Instance.Settings;
+                
+                if (settings.EnableMicaEffect)
+                {
+                    // 启用云母效果，根据透明度选择 Mica 类型
+                    var micaBackdrop = new Microsoft.UI.Xaml.Media.MicaBackdrop()
+                    {
+                        Kind = settings.MicaOpacity >= 0.5 
+                            ? Microsoft.UI.Composition.SystemBackdrops.MicaKind.Base 
+                            : Microsoft.UI.Composition.SystemBackdrops.MicaKind.BaseAlt
+                    };
+                    window.SystemBackdrop = micaBackdrop;
+                    
+                    // 设置页面背景为透明，让云母效果显示出来
+                    SetPageBackgrounds(true);
+                }
+                else
+                {
+                    // 禁用云母效果，使用默认背景
+                    window.SystemBackdrop = null;
+                    
+                    // 恢复页面背景
+                    SetPageBackgrounds(false);
+                }
+            }
+            catch
+            {
+                // 如果云母效果不支持，回退到默认背景
+            }
+        }
+        
+        private void SetPageBackgrounds(bool isMicaEnabled)
+        {
+            try
+            {
+                if (MainWindow is MainWindow window && window.Content is FrameworkElement rootElement)
+                {
+                    // 查找 ContentFrame
+                    var contentFrame = FindChild<Frame>(rootElement, "ContentFrame");
+                    if (contentFrame != null && contentFrame.Content is Page currentPage)
+                    {
+                        // 设置当前页面背景
+                        currentPage.Background = isMicaEnabled 
+                            ? new SolidColorBrush(Microsoft.UI.Colors.Transparent)
+                            : null;
+                    }
+                }
+            }
+            catch
+            {
+                // 忽略错误
+            }
+        }
+        
+        private static T? FindChild<T>(DependencyObject parent, string childName) where T : DependencyObject
+        {
+            if (parent == null) return null;
+
+            for (int i = 0; i < Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChild(parent, i);
+                if (child is T typedChild && (child as FrameworkElement)?.Name == childName)
+                {
+                    return (T)child;
+                }
+
+                var result = FindChild<T>(child, childName);
+                if (result != null) return result;
+            }
+
+            return null;
         }
 
         private static void CurrentDomain_UnhandledException(object sender, System.UnhandledExceptionEventArgs e)

@@ -5,8 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
-    mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    mc:Ignorable="d">
 
     <Grid Padding="20" SizeChanged="RootGrid_SizeChanged">
         <Grid.RowDefinitions>
@@ -127,7 +126,8 @@
                     CornerRadius="12"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1">
+                    BorderThickness="1"
+                    RightTapped="Card_ContextRequested">
                     <StackPanel Spacing="12">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xE7F7;" FontSize="20" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
@@ -178,14 +178,15 @@
                     </StackPanel>
                 </Border>
 
-                <!-- 网站测速卡片 -->
+                <!-- 连通测试卡片 -->
                 <Border
                     x:Name="SpeedCard"
                     Padding="18"
                     CornerRadius="12"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1">
+                    BorderThickness="1"
+                    RightTapped="Card_ContextRequested">
                     <StackPanel Spacing="12">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -286,7 +287,8 @@
                     CornerRadius="12"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1">
+                    BorderThickness="1"
+                    RightTapped="Card_ContextRequested">
                     <StackPanel Spacing="12">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xE909;" FontSize="20" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
@@ -374,7 +376,8 @@
                     CornerRadius="12"
                     Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="1">
+                    BorderThickness="1"
+                    RightTapped="Card_ContextRequested">
                     <StackPanel Spacing="12">
                         <StackPanel Orientation="Horizontal" Spacing="10">
                             <FontIcon Glyph="&#xE7F8;" FontSize="20" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
@@ -425,27 +428,41 @@
                     </StackPanel>
                 </Border>
 
-                <!-- 使用说明 -->
-                <Expander Header="使用说明" CornerRadius="10">
-                    <StackPanel Spacing="10" Padding="16">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE785;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="首次使用请先配置学号与密码" TextWrapping="Wrap"/>
+                <!-- 使用说明卡片 -->
+                <Border
+                    x:Name="HelpCard"
+                    Padding="18"
+                    CornerRadius="12"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    RightTapped="Card_ContextRequested">
+                    <StackPanel Spacing="12">
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <FontIcon Glyph="&#xE946;" FontSize="20" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                            <TextBlock Text="使用说明" Style="{StaticResource BodyStrongTextBlockStyle}" FontSize="16"/>
                         </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE785;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="连接校园网后可在首页一键登录" TextWrapping="Wrap"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE785;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="开启自动登录后会在检测到校园网时自动尝试登录" TextWrapping="Wrap"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon Glyph="&#xE785;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
-                            <TextBlock Text="如有异常请先点刷新状态，再检查配置和网络连接" TextWrapping="Wrap"/>
+                        
+                        <StackPanel Spacing="10" Padding="8">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE785;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                <TextBlock Text="首次使用请先配置学号与密码" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE785;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                <TextBlock Text="连接校园网后可在首页一键登录" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE785;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                <TextBlock Text="开启自动登录后会在检测到校园网时自动尝试登录" TextWrapping="Wrap"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <FontIcon Glyph="&#xE785;" FontSize="16" Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+                                <TextBlock Text="如有异常请先点刷新状态，再检查配置和网络连接" TextWrapping="Wrap"/>
+                            </StackPanel>
                         </StackPanel>
                     </StackPanel>
-                </Expander>
+                </Border>
             </StackPanel>
         </ScrollViewer>
     </Grid>

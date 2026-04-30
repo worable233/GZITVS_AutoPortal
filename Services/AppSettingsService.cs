@@ -69,6 +69,14 @@ namespace AutoPortal.Services
                 {
                     File.Delete(_settingsFilePath);
                 }
+                
+                // 重新创建目录（如果不存在）
+                var directory = Path.GetDirectoryName(_settingsFilePath);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                {
+                    Directory.CreateDirectory(directory);
+                }
+                
                 _settings = new AppSettings();
             }
             catch (Exception ex)
@@ -103,5 +111,11 @@ namespace AutoPortal.Services
 
         [JsonPropertyName("chartUpdateInterval")]
         public int ChartUpdateInterval { get; set; } = 3;
+
+        [JsonPropertyName("enableMicaEffect")]
+        public bool EnableMicaEffect { get; set; } = true;
+
+        [JsonPropertyName("micaOpacity")]
+        public double MicaOpacity { get; set; } = 1.0;
     }
 }

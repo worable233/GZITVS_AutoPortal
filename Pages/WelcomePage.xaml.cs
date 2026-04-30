@@ -4,6 +4,9 @@ using AutoPortal.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
+using System;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace AutoPortal.Pages
@@ -111,7 +114,34 @@ namespace AutoPortal.Pages
 
             if (_currentStep == 2)
             {
-                NavigationService.Instance.NavigateTo(PageType.Home);
+                try
+                {
+                    var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AutoPortal", "welcome.log");
+                    File.AppendAllText(logPath, $"Step 2: About to navigate to HomePage\n", Encoding.UTF8);
+                    
+                    // 先导航到 HomePage
+                    NavigationService.Instance.NavigateTo(PageType.Home);
+                    
+                    // 等待一小段时间让 HomePage 完成初始化
+                    await Task.Delay(100);
+                    
+                    File.AppendAllText(logPath, $"Step 2: Navigation completed\n", Encoding.UTF8);
+                }
+                catch (Exception ex)
+                {
+                    var logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "AutoPortal", "welcome.log");
+                    File.AppendAllText(logPath, $"Navigation error: {ex.Message}\n{ex.StackTrace}\n", Encoding.UTF8);
+                    
+                    // 显示错误对话框而不是直接崩溃
+                    var errorDialog = new ContentDialog
+                    {
+                        Title = "导航失败",
+                        Content = $"跳转到首页时出错：{ex.Message}\n\n详细信息：{ex.GetType().Name}",
+                        CloseButtonText = "确定",
+                        XamlRoot = XamlRoot
+                    };
+                    await errorDialog.ShowAsync();
+                }
                 return;
             }
 

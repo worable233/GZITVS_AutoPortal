@@ -8,13 +8,17 @@ using SkiaSharp;
 using Microsoft.Win32;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Net.Http;
 using System.Net.NetworkInformation;
 using System.Security.Principal;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.System.Threading;
 
 namespace AutoPortal.Pages
@@ -65,6 +69,9 @@ namespace AutoPortal.Pages
             UpdateDashboardLayout(ActualWidth);
             StartNetworkMonitor();
             await RefreshDashboardAsync(includeAutoFlow: true);
+            
+            // 加载保存的卡片顺序
+            LoadCardOrder();
         }
 
         private void Page_Unloaded(object sender, RoutedEventArgs e)
@@ -577,6 +584,451 @@ namespace AutoPortal.Pages
             StatusIcon.Glyph = glyph;
             StatusTitle.Text = title;
             StatusDescription.Text = description;
+        }
+
+        // ========== 卡片管理功能 ==========
+        
+        private Border? _selectedCard;
+
+        private void Card_ContextRequested(object sender, Microsoft.UI.Xaml.Input.RightTappedRoutedEventArgs e)
+        {
+            if (sender is Border card)
+            {
+                _selectedCard = card;
+                
+                // 获取鼠标位置
+                var position = e.GetPosition(card);
+                
+                // 显示选中效果
+                ShowSelectedEffect(card);
+                
+                // 在鼠标位置显示菜单
+                ShowCardMenu(card, position);
+            }
+        }
+
+        private void ShowSelectedEffect(Border card)
+        {
+            // 设置选中效果 - 使用主题强调色
+            card.BorderBrush = App.Current.Resources["AccentTextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush;
+            card.BorderThickness = new Microsoft.UI.Xaml.Thickness(3);
+            
+            // 添加轻微透明度变化
+            card.Opacity = 0.95;
+        }
+
+        private void ShowCardMenu(FrameworkElement placementTarget, Point position)
+        {
+            var menuFlyout = new MenuFlyout();
+            
+            // 添加菜单项
+            var addMenuItem = new MenuFlyoutItem 
+            { 
+                Text = "在此卡片后添加新卡片",
+                Icon = new SymbolIcon(Symbol.Add)
+            };
+            addMenuItem.Click += AddCard_Click;
+            menuFlyout.Items.Add(addMenuItem);
+            
+            // 添加分隔线
+            menuFlyout.Items.Add(new MenuFlyoutSeparator());
+            
+            // 上移/下移菜单项
+            var moveUpItem = new MenuFlyoutItem 
+            { 
+                Text = "上移",
+                Icon = new FontIcon { Glyph = "\uE70E" }
+            };
+            moveUpItem.Click += MoveCardUp_Click;
+            menuFlyout.Items.Add(moveUpItem);
+            
+            var moveDownItem = new MenuFlyoutItem 
+            { 
+                Text = "下移",
+                Icon = new FontIcon { Glyph = "\uE70D" }
+            };
+            moveDownItem.Click += MoveCardDown_Click;
+            menuFlyout.Items.Add(moveDownItem);
+            
+            // 添加分隔线
+            menuFlyout.Items.Add(new MenuFlyoutSeparator());
+            
+            // 删除菜单项（除了状态卡片和快捷操作卡片、使用说明卡片）
+            if (_selectedCard != StatusCard && _selectedCard != HelpCard)
+            {
+                var deleteMenuItem = new MenuFlyoutItem 
+                { 
+                    Text = "删除此卡片",
+                    Icon = new SymbolIcon(Symbol.Delete)
+                };
+                deleteMenuItem.Foreground = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                    Microsoft.UI.Colors.Red);
+                deleteMenuItem.Click += DeleteCard_Click;
+                menuFlyout.Items.Add(deleteMenuItem);
+            }
+            
+            // 重置菜单项
+            var resetMenuItem = new MenuFlyoutItem 
+            { 
+                Text = "重置所有卡片位置",
+                Icon = new SymbolIcon(Symbol.Refresh)
+            };
+            resetMenuItem.Click += ResetCards_Click;
+            menuFlyout.Items.Add(resetMenuItem);
+            
+            // 在鼠标位置显示菜单
+            menuFlyout.ShowAt(placementTarget, position);
+            
+            // 菜单关闭后恢复边框
+            menuFlyout.Closed += (s, args) =>
+            {
+                if (_selectedCard != null)
+                {
+                    _selectedCard.BorderBrush = App.Current.Resources["CardStrokeColorDefaultBrush"] as Microsoft.UI.Xaml.Media.Brush;
+                    _selectedCard.BorderThickness = new Microsoft.UI.Xaml.Thickness(1);
+                    _selectedCard.Opacity = 1.0;
+                }
+            };
+        }
+
+        private async void AddCard_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedCard == null) return;
+            
+            var dialog = new ContentDialog
+            {
+                Title = "添加新卡片",
+                Content = "请选择要添加的卡片类型：",
+                PrimaryButtonText = "添加",
+                CloseButtonText = "取消",
+                XamlRoot = XamlRoot
+            };
+            
+            var stackPanel = new StackPanel { Spacing = 12 };
+            
+            var trafficOption = new RadioButton { Content = "流量统计卡片", IsChecked = true, Tag = "TrafficCard" };
+            stackPanel.Children.Add(trafficOption);
+            
+            var speedOption = new RadioButton { Content = "连通测试卡片", Tag = "SpeedCard" };
+            stackPanel.Children.Add(speedOption);
+            
+            var ipOption = new RadioButton { Content = "IP 信息卡片", Tag = "IpCard" };
+            stackPanel.Children.Add(ipOption);
+            
+            var systemOption = new RadioButton { Content = "系统信息卡片", Tag = "SystemCard" };
+            stackPanel.Children.Add(systemOption);
+            
+            dialog.Content = stackPanel;
+            
+            var result = await dialog.ShowAsync();
+            
+            if (result == ContentDialogResult.Primary)
+            {
+                var selected = stackPanel.Children.Cast<RadioButton>().FirstOrDefault(r => r.IsChecked == true);
+                if (selected != null && selected.Tag != null)
+                {
+                    DuplicateCard(selected.Tag.ToString()!);
+                }
+            }
+        }
+
+        private void DuplicateCard(string cardType)
+        {
+            if (_selectedCard == null) return;
+            
+            var parent = _selectedCard.Parent as StackPanel;
+            if (parent == null) return;
+            
+            var currentIndex = parent.Children.IndexOf(_selectedCard);
+            if (currentIndex < 0) return;
+            
+            // 根据类型创建新卡片
+            var newCard = CreateCardByType(cardType);
+            if (newCard != null)
+            {
+                parent.Children.Insert(currentIndex + 1, newCard);
+            }
+        }
+
+        private Border CreateCardByType(string cardType)
+        {
+            var newCard = new Border
+            {
+                Padding = new Microsoft.UI.Xaml.Thickness(18),
+                CornerRadius = new Microsoft.UI.Xaml.CornerRadius(12),
+                Background = App.Current.Resources["CardBackgroundFillColorDefaultBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                BorderBrush = App.Current.Resources["CardStrokeColorDefaultBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                BorderThickness = new Microsoft.UI.Xaml.Thickness(1)
+            };
+            
+            newCard.RightTapped += Card_ContextRequested;
+
+            var content = cardType switch
+            {
+                "TrafficCard" => (UIElement)CreateTrafficCardContent(),
+                "SpeedCard" => (UIElement)CreateSpeedCardContent(),
+                "IpCard" => (UIElement)CreateIpCardContent(),
+                "SystemCard" => (UIElement)CreateSystemCardContent(),
+                _ => (UIElement)CreateDefaultContent("未知卡片类型")
+            };
+
+            newCard.Child = content;
+            return newCard;
+        }
+
+        private StackPanel CreateTrafficCardContent()
+        {
+            return new StackPanel
+            {
+                Spacing = 12,
+                Children =
+                {
+                    new StackPanel
+                    {
+                        Orientation = Microsoft.UI.Xaml.Controls.Orientation.Horizontal,
+                        Spacing = 10,
+                        Children =
+                        {
+                            new FontIcon { Glyph = "\uE7F7", FontSize = 20, Foreground = App.Current.Resources["AccentTextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush },
+                            new TextBlock { Text = "流量统计", Style = (Microsoft.UI.Xaml.Style)App.Current.Resources["BodyStrongTextBlockStyle"], FontSize = 16 }
+                        }
+                    },
+                    new Border
+                    {
+                        Background = App.Current.Resources["CardBackgroundFillColorSecondaryBrush"] as Microsoft.UI.Xaml.Media.Brush,
+                        CornerRadius = new Microsoft.UI.Xaml.CornerRadius(8),
+                        Padding = new Microsoft.UI.Xaml.Thickness(12),
+                        Child = new TextBlock { Text = "新流量统计卡片", Foreground = App.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush }
+                    }
+                }
+            };
+        }
+
+        private StackPanel CreateSpeedCardContent()
+        {
+            return new StackPanel
+            {
+                Spacing = 12,
+                Children =
+                {
+                    new StackPanel
+                    {
+                        Orientation = Microsoft.UI.Xaml.Controls.Orientation.Horizontal,
+                        Spacing = 10,
+                        Children =
+                        {
+                            new FontIcon { Glyph = "\uE909", FontSize = 20, Foreground = App.Current.Resources["AccentTextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush },
+                            new TextBlock { Text = "连通测试", Style = (Microsoft.UI.Xaml.Style)App.Current.Resources["BodyStrongTextBlockStyle"], FontSize = 16 }
+                        }
+                    },
+                    new TextBlock { Text = "新连通测试卡片", Foreground = App.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush }
+                }
+            };
+        }
+
+        private StackPanel CreateIpCardContent()
+        {
+            return new StackPanel
+            {
+                Spacing = 12,
+                Children =
+                {
+                    new StackPanel
+                    {
+                        Orientation = Microsoft.UI.Xaml.Controls.Orientation.Horizontal,
+                        Spacing = 10,
+                        Children =
+                        {
+                            new FontIcon { Glyph = "\uE909", FontSize = 20, Foreground = App.Current.Resources["AccentTextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush },
+                            new TextBlock { Text = "IP 信息", Style = (Microsoft.UI.Xaml.Style)App.Current.Resources["BodyStrongTextBlockStyle"], FontSize = 16 }
+                        }
+                    },
+                    new TextBlock { Text = "新 IP 信息卡片", Foreground = App.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush }
+                }
+            };
+        }
+
+        private StackPanel CreateSystemCardContent()
+        {
+            return new StackPanel
+            {
+                Spacing = 12,
+                Children =
+                {
+                    new StackPanel
+                    {
+                        Orientation = Microsoft.UI.Xaml.Controls.Orientation.Horizontal,
+                        Spacing = 10,
+                        Children =
+                        {
+                            new FontIcon { Glyph = "\uE7F8", FontSize = 20, Foreground = App.Current.Resources["AccentTextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush },
+                            new TextBlock { Text = "系统信息", Style = (Microsoft.UI.Xaml.Style)App.Current.Resources["BodyStrongTextBlockStyle"], FontSize = 16 }
+                        }
+                    },
+                    new TextBlock { Text = "新系统信息卡片", Foreground = App.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush }
+                }
+            };
+        }
+
+        private TextBlock CreateDefaultContent(string text)
+        {
+            return new TextBlock 
+            { 
+                Text = text,
+                Foreground = App.Current.Resources["TextFillColorPrimaryBrush"] as Microsoft.UI.Xaml.Media.Brush
+            };
+        }
+
+        private void DeleteCard_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedCard == null) return;
+            if (_selectedCard == StatusCard) return;
+            
+            var parent = _selectedCard.Parent as StackPanel;
+            if (parent != null)
+            {
+                parent.Children.Remove(_selectedCard);
+                SaveCardOrder(); // 保存卡片顺序
+            }
+            _selectedCard = null;
+        }
+
+        private void MoveCardUp_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedCard == null) return;
+            
+            var parent = _selectedCard.Parent as StackPanel;
+            if (parent == null) return;
+            
+            var index = parent.Children.IndexOf(_selectedCard);
+            if (index > 0)
+            {
+                parent.Children.RemoveAt(index);
+                parent.Children.Insert(index - 1, _selectedCard);
+                SaveCardOrder(); // 保存卡片顺序
+            }
+        }
+
+        private void MoveCardDown_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedCard == null) return;
+            
+            var parent = _selectedCard.Parent as StackPanel;
+            if (parent == null) return;
+            
+            var index = parent.Children.IndexOf(_selectedCard);
+            if (index >= 0 && index < parent.Children.Count - 1)
+            {
+                parent.Children.RemoveAt(index);
+                parent.Children.Insert(index + 1, _selectedCard);
+                SaveCardOrder(); // 保存卡片顺序
+            }
+        }
+
+        private void ResetCards_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "确认重置",
+                Content = "确定要重置所有卡片位置吗？",
+                PrimaryButtonText = "确定",
+                CloseButtonText = "取消",
+                XamlRoot = XamlRoot
+            };
+            
+            _ = dialog.ShowAsync();
+        }
+
+        // ========== 卡片顺序保存和加载 ==========
+        
+        private void SaveCardOrder()
+        {
+            try
+            {
+                var parent = StatusCard?.Parent as StackPanel;
+                if (parent == null) return;
+                
+                var cardOrder = new List<string>();
+                foreach (var child in parent.Children)
+                {
+                    if (child is Border border && border.Name != null)
+                    {
+                        cardOrder.Add(border.Name);
+                    }
+                }
+                
+                // 保存到配置文件
+                var config = new { CardOrder = cardOrder };
+                var json = System.Text.Json.JsonSerializer.Serialize(config, new System.Text.Json.JsonSerializerOptions 
+                { 
+                    WriteIndented = true,
+                    Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+                });
+                
+                var configPath = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "AutoPortal",
+                    "cardOrder.json");
+                
+                System.IO.File.WriteAllText(configPath, json);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"保存卡片顺序失败：{ex.Message}");
+            }
+        }
+
+        private void LoadCardOrder()
+        {
+            try
+            {
+                var configPath = System.IO.Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                    "AutoPortal",
+                    "cardOrder.json");
+                
+                if (!System.IO.File.Exists(configPath)) return;
+                
+                var json = System.IO.File.ReadAllText(configPath);
+                var config = System.Text.Json.JsonSerializer.Deserialize<CardOrderConfig>(json);
+                
+                if (config?.CardOrder == null) return;
+                
+                var parent = StatusCard?.Parent as StackPanel;
+                if (parent == null) return;
+                
+                // 根据保存的顺序重新排列卡片
+                foreach (var cardName in config.CardOrder)
+                {
+                    var card = FindCardByName(parent, cardName);
+                    if (card != null)
+                    {
+                        parent.Children.Remove(card);
+                        parent.Children.Add(card);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"加载卡片顺序失败：{ex.Message}");
+            }
+        }
+
+        private Border? FindCardByName(StackPanel parent, string name)
+        {
+            foreach (var child in parent.Children)
+            {
+                if (child is Border border && border.Name == name)
+                {
+                    return border;
+                }
+            }
+            return null;
+        }
+
+        private class CardOrderConfig
+        {
+            public List<string>? CardOrder { get; set; }
         }
     }
 }

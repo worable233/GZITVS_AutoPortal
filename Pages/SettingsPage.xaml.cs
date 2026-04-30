@@ -3,9 +3,13 @@ using AutoPortal.Models;
 using AutoPortal.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Controls.Primitives;
+using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using System;
 using System.IO;
 using Microsoft.Win32;
+using Windows.UI;
 
 namespace AutoPortal.Pages
 {
@@ -45,6 +49,9 @@ namespace AutoPortal.Pages
             var settings = AppSettingsService.Instance.Settings;
             ThemeComboBox.SelectedIndex = settings.Theme;
             AutoStartCheckBox.IsOn = settings.EnableAutoLogin;
+            MicaEffectCheckBox.IsOn = settings.EnableMicaEffect;
+            MicaOpacitySlider.Value = settings.MicaOpacity;
+            UpdateMicaOpacityText(settings.MicaOpacity);
             
             var interval = settings.ChartUpdateInterval;
             ChartUpdateIntervalComboBox.SelectedIndex = interval switch
@@ -96,6 +103,131 @@ namespace AutoPortal.Pages
             AppSettingsService.Instance.SaveSettings();
             
             UpdateStartupRegistry(AutoStartCheckBox.IsOn);
+        }
+
+        private void MicaEffectCheckBox_Toggled(object sender, RoutedEventArgs e)
+        {
+            var settings = AppSettingsService.Instance.Settings;
+            settings.EnableMicaEffect = MicaEffectCheckBox.IsOn;
+            AppSettingsService.Instance.SaveSettings();
+            
+            ApplyMicaEffect(MicaEffectCheckBox.IsOn);
+            UpdateCurrentPageBackground(MicaEffectCheckBox.IsOn);
+        }
+
+        private void MicaOpacitySlider_ManipulationCompleted(object sender, Microsoft.UI.Xaml.Input.ManipulationCompletedRoutedEventArgs e)
+        {
+            if (MicaOpacityTextBlock == null) return;
+            
+            var settings = AppSettingsService.Instance.Settings;
+            settings.MicaOpacity = MicaOpacitySlider.Value;
+            AppSettingsService.Instance.SaveSettings();
+            
+            UpdateMicaOpacityText(MicaOpacitySlider.Value);
+            
+            // 只在滑块释放时才应用效果
+            if (MicaEffectCheckBox.IsOn)
+            {
+                ApplyMicaEffectWithOpacity(MicaOpacitySlider.Value);
+            }
+        }
+        
+        private void UpdateMicaOpacityText(double opacity)
+        {
+            MicaOpacityTextBlock.Text = $"{(int)(opacity * 100)}%";
+        }
+        
+        private static void ApplyMicaEffectWithOpacity(double opacity)
+        {
+            try
+            {
+                if (App.MainWindow is not MainWindow window) return;
+                
+                // 创建新的 MicaBackdrop
+                var micaBackdrop = new Microsoft.UI.Xaml.Media.MicaBackdrop()
+                {
+                    Kind = opacity >= 0.5 
+                        ? Microsoft.UI.Composition.SystemBackdrops.MicaKind.Base 
+                        : Microsoft.UI.Composition.SystemBackdrops.MicaKind.BaseAlt
+                };
+                window.SystemBackdrop = micaBackdrop;
+                
+                // 注意：MicaBackdrop 本身不支持透明度调节
+                // 这里我们通过选择不同的 Mica 类型来模拟透明度效果
+                // opacity >= 0.5 使用 Base (较不透明)
+                // opacity < 0.5 使用 BaseAlt (较透明)
+            }
+            catch
+            {
+                // 忽略错误
+            }
+        }
+
+        private static void ApplyMicaEffect(bool enable)
+        {
+            try
+            {
+                if (App.MainWindow is not MainWindow window) return;
+
+                if (enable)
+                {
+                    // 启用云母效果
+                    var micaBackdrop = new Microsoft.UI.Xaml.Media.MicaBackdrop()
+                    {
+                        Kind = Microsoft.UI.Composition.SystemBackdrops.MicaKind.Base
+                    };
+                    window.SystemBackdrop = micaBackdrop;
+                }
+                else
+                {
+                    // 禁用云母效果，使用默认背景
+                    window.SystemBackdrop = null;
+                }
+            }
+            catch
+            {
+                // 如果云母效果不支持，回退到默认背景
+            }
+        }
+        
+        private void UpdateCurrentPageBackground(bool enable)
+        {
+            try
+            {
+                if (App.MainWindow?.Content is FrameworkElement rootElement)
+                {
+                    var contentFrame = FindChild<Frame>(rootElement, "ContentFrame");
+                    if (contentFrame != null && contentFrame.Content is Page currentPage)
+                    {
+                        currentPage.Background = enable
+                            ? new SolidColorBrush(Microsoft.UI.Colors.Transparent)
+                            : null;
+                    }
+                }
+            }
+            catch
+            {
+                // 忽略错误
+            }
+        }
+        
+        private static T? FindChild<T>(DependencyObject parent, string childName) where T : DependencyObject
+        {
+            if (parent == null) return null;
+
+            for (int i = 0; i < Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(parent); i++)
+            {
+                var child = Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChild(parent, i);
+                if (child is T typedChild && (child as FrameworkElement)?.Name == childName)
+                {
+                    return (T)child;
+                }
+
+                var result = FindChild<T>(child, childName);
+                if (result != null) return result;
+            }
+
+            return null;
         }
 
         private static void UpdateStartupRegistry(bool enable)
@@ -291,8 +423,12 @@ namespace AutoPortal.Pages
                 if (!string.IsNullOrEmpty(appPath))
                 {
                     var scriptContent = $@"@echo off
+echo 正在重启应用...
+timeout /t 3 /nobreak >nul
+taskkill /F /IM AutoPortal.exe 2>nul
 timeout /t 2 /nobreak >nul
 start """" ""{appPath}""
+timeout /t 1 /nobreak >nul
 del ""{restartScript}""
 ";
                     File.WriteAllText(restartScript, scriptContent);
