@@ -36,6 +36,11 @@ namespace AutoPortal.Services
             {
                 var json = JsonSerializer.Serialize(_settings, AppJsonContext.Default.AppSettings);
                 File.WriteAllText(_settingsFilePath, json);
+                
+                // 写入调试日志
+                var logPath = Path.Combine(Path.GetDirectoryName(_settingsFilePath)!, "settings_debug.log");
+                var logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 保存设置 - Theme={_settings.Theme}\n";
+                File.AppendAllText(logPath, logEntry);
             }
             catch (Exception ex)
             {
@@ -50,7 +55,16 @@ namespace AutoPortal.Services
                 if (File.Exists(_settingsFilePath))
                 {
                     var json = File.ReadAllText(_settingsFilePath);
-                    return JsonSerializer.Deserialize(json, AppJsonContext.Default.AppSettings) ?? new AppSettings();
+                    var settings = JsonSerializer.Deserialize(json, AppJsonContext.Default.AppSettings);
+                    if (settings != null)
+                    {
+                        // 写入调试日志
+                        var logPath = Path.Combine(Path.GetDirectoryName(_settingsFilePath)!, "settings_debug.log");
+                        var logEntry = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss}] 加载设置 - Theme={settings.Theme}\n";
+                        File.AppendAllText(logPath, logEntry);
+                        
+                        return settings;
+                    }
                 }
             }
             catch (Exception ex)

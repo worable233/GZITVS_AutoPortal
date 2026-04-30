@@ -1,10 +1,10 @@
 ; Inno Setup Script for AutoPortal
-; 版本：1.1.0
+; 版本：1.1.1
 ; 发布者：worable
 ; 许可协议：Attribution-NonCommercial-ShareAlike 4.0 International
 
 #define MyAppName "AutoPortal"
-#define MyAppVersion "1.1.0"
+#define MyAppVersion "1.1.1"
 #define MyAppPublisher "worable"
 #define MyAppExeName "AutoPortal.exe"
 #define MyAppURL "https://github.com/worable/AutoPortal"
@@ -19,7 +19,7 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-VersionInfoVersion=1.1.0.0
+VersionInfoVersion=1.1.1.0
 VersionInfoCompany=worable
 
 ; 安装路径

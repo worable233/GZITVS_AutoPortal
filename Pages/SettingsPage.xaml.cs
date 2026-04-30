@@ -47,13 +47,21 @@ namespace AutoPortal.Pages
         private void LoadSettings()
         {
             var settings = AppSettingsService.Instance.Settings;
+            
+            // 暂时取消事件订阅，避免设置值时触发事件
+            ThemeComboBox.SelectionChanged -= ThemeComboBox_SelectionChanged;
             ThemeComboBox.SelectedIndex = settings.Theme;
+            ThemeComboBox.SelectionChanged += ThemeComboBox_SelectionChanged;
+            
             AutoStartCheckBox.IsOn = settings.EnableAutoLogin;
             MicaEffectCheckBox.IsOn = settings.EnableMicaEffect;
             MicaOpacitySlider.Value = settings.MicaOpacity;
             UpdateMicaOpacityText(settings.MicaOpacity);
             
             var interval = settings.ChartUpdateInterval;
+            
+            // 暂时取消事件订阅，避免设置值时触发事件
+            ChartUpdateIntervalComboBox.SelectionChanged -= ChartUpdateIntervalComboBox_SelectionChanged;
             ChartUpdateIntervalComboBox.SelectedIndex = interval switch
             {
                 1 => 0,
@@ -62,6 +70,7 @@ namespace AutoPortal.Pages
                 5 => 3,
                 _ => 2
             };
+            ChartUpdateIntervalComboBox.SelectionChanged += ChartUpdateIntervalComboBox_SelectionChanged;
         }
 
         private void LoadVersionInfo()
@@ -84,6 +93,7 @@ namespace AutoPortal.Pages
             {
                 if (App.MainWindow?.Content is not FrameworkElement content) return;
 
+                // 设置窗口内容的主题，确保所有页面都生效
                 content.RequestedTheme = themeIndex switch
                 {
                     1 => ElementTheme.Light,

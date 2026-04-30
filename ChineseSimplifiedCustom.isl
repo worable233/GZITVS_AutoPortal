@@ -10,7 +10,7 @@ LanguageCodePage=936
 [Messages]
 ; Application Title
 AppName=AutoPortal
-AppVersion=版本 1.1.0
+AppVersion=版本 1.1.1
 AppTitle=AutoPortal 安装程序
 AppCopyright=Copyright © 2026 worable
 
